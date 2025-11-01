@@ -1,0 +1,43 @@
+{
+    "manifest_version": 3,
+    "name": "PokePaste Extension",
+    "version": "1.0.0",
+    "action": {
+        "default_popup": "index.html"
+    },
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "host_permissions": [
+        "https://pokepast.es/*",
+        "https://*.firebaseapp.com/*",
+        "https://*.googleapis.com/*",
+        "https://accounts.google.com/*",
+        "https://identitytoolkit.googleapis.com/*",
+        "https://securetoken.googleapis.com/*",
+        "https://hayatosum.github.io/*"
+    ],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'"
+    },
+    "web_accessible_resources": [
+        {
+            "resources": ["*.js", "*.css"],
+            "matches": ["<all_urls>"]
+        }
+    ],
+    "permissions": ["activeTab", "tabs", "storage", "identity"],
+    "content_scripts": [
+        {
+            "matches": ["https://hayatosum.github.io/*"],
+            "js": ["content.js"],
+            "run_at": "document_end"
+        },
+        {
+            "matches": ["https://pokepast.es/*"],
+            "js": ["pokepaste-extractor.js"],
+            "run_at": "document_end"
+        }
+    ]
+}

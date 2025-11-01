@@ -1,0 +1,57 @@
+/* Chrome拡張機能専用のCSS設定 */
+html {
+    margin: 0;
+    padding: 0;
+    width: fit-content;
+    height: fit-content;
+}
+
+:root {
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    color-scheme: dark;
+    color: rgba(255, 255, 255, 0.87);
+    background-color: #1a1a1a;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+    margin: 0;
+    padding: 0;
+    width: fit-content;
+    height: fit-content;
+}
+
+a {
+    font-weight: 500;
+    color: #646cff;
+    text-decoration: inherit;
+}
+a:hover {
+    color: #535bf2;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: fit-content;
+    height: fit-content;
+    overflow: hidden;
+}
+
+/* Chrome拡張機能では不要なスタイルを削除し、最小限の設定のみ保持 */
+* {
+    box-sizing: border-box;
+}
+
+button:focus,
+button:focus-visible {
+    outline: 2px solid #4fc3f7;
+    outline-offset: 1px;
+}

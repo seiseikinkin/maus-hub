@@ -1,0 +1,35 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ユーザープロフィール - 本人のみアクセス可能
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // PokePasteデータ - 開発・テスト用（一時的に権限を緩和）
+    match /pokepastes/{pokepasteId} {
+      // 一時的にすべてのユーザーに読み書きを許可（開発・テスト用）
+      // 本番環境では適切な認証システムに変更すること
+      allow read, write: if true;
+    }
+    
+    // 許可されたユーザーリスト - 認証されたユーザーのみ読み取り可能
+    match /config/allowedUsers {
+      allow read: if request.auth != null;
+      allow write: if false; // 管理者コンソールからのみ変更可能
+    }
+    
+    // 許可ユーザーリスト（配列形式）
+    match /allowedUsers/{document} {
+      allow read: if request.auth != null;
+      allow write: if false; // 管理者コンソールからのみ変更可能
+    }
+    
+    // その他の設定ドキュメント
+    match /config/{document} {
+      allow read: if request.auth != null;
+      allow write: if false; // 管理者コンソールからのみ変更可能
+    }
+  }
+}

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Chrome拡張認証</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 400px;
+                margin: 50px auto;
+                padding: 20px;
+                text-align: center;
+            }
+            .auth-container {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 30px;
+                background: #f9f9f9;
+            }
+            .google-btn {
+                background: #4285f4;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 16px;
+                margin: 20px 0;
+            }
+            .google-btn:hover {
+                background: #357ae8;
+            }
+            .status {
+                margin: 20px 0;
+                padding: 10px;
+                border-radius: 4px;
+            }
+            .success {
+                background: #d4edda;
+                color: #155724;
+            }
+            .error {
+                background: #f8d7da;
+                color: #721c24;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="auth-container">
+            <h2>🔐 Chrome拡張認証</h2>
+            <p>許可されたGoogleアカウントでログインしてください</p>
+
+            <button id="googleLogin" class="google-btn">🔍 Googleでログイン</button>
+
+            <div id="status"></div>
+        </div>
+
+        <!-- Firebase SDK -->
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+            import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+            import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+            // Firebase設定（実際の値に置き換え）
+            const firebaseConfig = {
+                apiKey: "AIzaSyA6JMxn_fGeTEasYUeNtgtIMF-wUJ9JPa8",
+                authDomain: "sample-9dde3.firebaseapp.com",
+                projectId: "sample-9dde3",
+                storageBucket: "sample-9dde3.firebasestorage.app",
+                messagingSenderId: "434283491779",
+                appId: "1:434283491779:web:56a18cfeb70f89e2a2cd76",
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+            const provider = new GoogleAuthProvider();
+
+            // 許可ユーザーチェック
+            async function isEmailAllowed(email) {
+                try {
+                    const docRef = doc(db, "config", "allowedUsers");
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists() && docSnap.data().enabled) {
+                        const allowedEmails = docSnap.data().emails || [];
+                        return allowedEmails.includes(email);
+                    }
+                    return false;
+                } catch (error) {
+                    console.error("Error checking allowed users:", error);
+                    return false;
+                }
+            }
+
+            // ステータス表示
+            function showStatus(message, isError = false) {
+                const status = document.getElementById("status");
+                status.textContent = message;
+                status.className = `status ${isError ? "error" : "success"}`;
+            }
+
+            // Googleログイン
+            document.getElementById("googleLogin").addEventListener("click", async () => {
+                try {
+                    showStatus("認証中...", false);
+
+                    const result = await signInWithPopup(auth, provider);
+                    const user = result.user;
+
+                    if (!user.email) {
+                        throw new Error("メールアドレスが取得できませんでした");
+                    }
+
+                    // 許可ユーザーチェック
+                    if (!(await isEmailAllowed(user.email))) {
+                        await auth.signOut();
+                        throw new Error("このメールアドレスはログインが許可されていません");
+                    }
+
+                    // 成功時：認証情報を一時保存
+                    showStatus("認証成功！拡張機能に戻ります...", false);
+
+                    const userProfile = {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName || user.email.split("@")[0],
+                        photoURL: user.photoURL,
+                        createdAt: Date.now(),
+                        lastLoginAt: Date.now(),
+                    };
+
+                    console.log("Saving auth data temporarily:", userProfile);
+
+                    // postMessageでコンテンツスクリプトに認証情報を送信
+                    try {
+                        window.postMessage(
+                            {
+                                type: "AUTH_SUCCESS",
+                                user: userProfile,
+                            },
+                            window.location.origin
+                        );
+                        console.log("Auth message posted to content script");
+
+                        // URLに成功フラグを追加してページを更新
+                        const url = new URL(window.location.href);
+                        url.searchParams.set("authSuccess", "true");
+                        url.searchParams.set("timestamp", Date.now().toString());
+
+                        // 成功メッセージを表示してからリダイレクト
+                        setTimeout(() => {
+                            window.location.href = url.toString();
+                        }, 1000);
+                    } catch (error) {
+                        console.error("Error saving auth data:", error);
+                        // フォールバック：直接タブを閉じる
+                        setTimeout(() => {
+                            window.close();
+                        }, 2000);
+                    }
+
+                    // 5秒後にタブを閉じる（メッセージ処理の時間を確保）
+                    setTimeout(() => {
+                        console.log("Closing auth tab");
+                        window.close();
+                    }, 5000);
+                } catch (error) {
+                    console.error("認証エラー:", error);
+                    showStatus(`エラー: ${error.message}`, true);
+
+                    // Chrome拡張にエラーを送信
+                    if (window.chrome && chrome.runtime) {
+                        chrome.runtime.sendMessage(chrome.runtime.id, {
+                            type: "AUTH_ERROR",
+                            error: error.message,
+                        });
+                    }
+                }
+            });
+
+            // URLパラメータチェック
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get("extension") === "true") {
+                document.body.style.background = "#e3f2fd";
+                showStatus("Chrome拡張からのアクセスを検出しました", false);
+            }
+
+            // 認証成功後の処理
+            if (urlParams.get("authSuccess") === "true") {
+                showStatus("認証が完了しました！タブを閉じます...", false);
+                console.log("Auth success detected, closing tab");
+
+                // 少し待ってからタブを閉じる
+                setTimeout(() => {
+                    window.close();
+                }, 2000);
+            }
+        </script>
+    </body>
+</html>
