@@ -20,47 +20,62 @@ export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste }) => {
         window.open(pokepaste.url, '_blank');
     };
 
-    const shortenUserId = (userId: string) => {
-        return userId.length > 10 ? `${userId.substring(0, 10)}...` : userId;
+    // ポケモン名から画像URLを生成
+    const getPokemonImageUrl = (pokemonName: string): string => {
+        // 全て小文字に変換し、スペースをハイフンに置換
+        const imageName = pokemonName.toLowerCase().replace(/\s+/g, '-');
+        return `https://seiseikinkin.github.io/tools/image/minisprites/${imageName}.png`;
+    };
+
+    // 画像エラー時のフォールバック処理
+    const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+        const target = e.target as HTMLImageElement;
+        const parent = target.parentElement;
+        if (parent) {
+            // 画像を非表示にしてフォールバックテキストを表示
+            target.style.display = 'none';
+            const textElement = parent.querySelector('.pokemon-name-text') as HTMLElement;
+            if (textElement) {
+                textElement.style.display = 'inline-block';
+            }
+        }
     };
 
     return (
         <div className="pokepaste-item">
             <div className="pokepaste-header">
-                <h3 className="pokepaste-title" onClick={handleOpenUrl}>
-                    {pokepaste.title || 'Untitled PokePaste'}
-                </h3>
+                <div className="pokepaste-title-section">
+                    <h3 className="pokepaste-title" onClick={handleOpenUrl}>
+                        {pokepaste.title || 'Untitled PokePaste'}
+                    </h3>
+                    {pokepaste.author && (
+                        <span className="pokepaste-author">
+                            by {pokepaste.author}
+                        </span>
+                    )}
+                </div>
                 <span className="pokepaste-date">
                     {formatDate(pokepaste.timestamp)}
                 </span>
             </div>
             
             <div className="pokepaste-details">
-                <div className="pokepaste-url">
-                    <span className="url-label">URL:</span>
-                    <a 
-                        href={pokepaste.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="pokepaste-link"
-                    >
-                        {pokepaste.url}
-                    </a>
-                </div>
-                
-                <div className="pokepaste-user">
-                    <span className="user-label">User:</span>
-                    <span className="user-id">{shortenUserId(pokepaste.userId)}</span>
-                </div>
-
                 {pokepaste.pokemonNames && pokepaste.pokemonNames.length > 0 && (
                     <div className="pokemon-names">
-                        <span className="pokemon-label">Pokemon:</span>
                         <div className="pokemon-list">
                             {pokepaste.pokemonNames.map((name, index) => (
-                                <span key={index} className="pokemon-name">
-                                    🎮 {name}
-                                </span>
+                                <div key={index} className="pokemon-item">
+                                    <img
+                                        src={getPokemonImageUrl(name)}
+                                        alt={name}
+                                        className="pokemon-sprite"
+                                        onError={handleImageError}
+                                        title={name}
+                                    />
+                                    <span className="pokemon-name-text" style={{ display: 'none' }}>
+                                        🎮 {name}
+                                    </span>
+                                </div>
                             ))}
                         </div>
                     </div>

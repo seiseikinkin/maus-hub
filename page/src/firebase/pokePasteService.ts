@@ -8,6 +8,7 @@ export interface PokePasteData {
     title: string;
     timestamp: number;
     userId: string;
+    author?: string;
     pokemonNames?: string[];
 }
 
@@ -22,6 +23,7 @@ export class PokePasteService {
                 title: "Sample Team 1",
                 timestamp: Date.now() - 86400000, // 1日前
                 userId: userId,
+                author: "TrainerAlice",
                 pokemonNames: ["Pikachu", "Charizard", "Blastoise"],
             },
             {
@@ -30,6 +32,7 @@ export class PokePasteService {
                 title: "Sample Team 2",
                 timestamp: Date.now() - 172800000, // 2日前
                 userId: userId,
+                author: "TrainerBob",
                 pokemonNames: ["Venusaur", "Alakazam", "Machamp"],
             },
         ];

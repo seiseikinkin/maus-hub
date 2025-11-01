@@ -19,8 +19,6 @@
     --border-light: #ddd;
 
     /* アクセント色 */
-    --accent-blue: #3498db;
-    --accent-blue-hover: #2980b9;
     --accent-green: #27ae60;
     --accent-green-hover: #219a52;
     --accent-red: #e74c3c;
@@ -30,7 +28,6 @@
     --pokemon-bg: #e8f5e8;
     --pokemon-border: #c3e6c3;
     --pokemon-text: #27ae60;
-    --user-bg: #f1f2f6;
 
     /* シャドウ */
     --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -58,8 +55,6 @@
     --border-light: #606060;
 
     /* アクセント色（少し調整） */
-    --accent-blue: #4fa8d8;
-    --accent-blue-hover: #3498db;
     --accent-green: #2ecc71;
     --accent-green-hover: #27ae60;
     --accent-red: #e67e22;
@@ -69,7 +64,6 @@
     --pokemon-bg: #2d4a2d;
     --pokemon-border: #4a6b4a;
     --pokemon-text: #5cb85c;
-    --user-bg: #3a3a3a;
 
     /* シャドウ */
     --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.3);
@@ -332,18 +326,31 @@ body {
     gap: 0.5rem;
 }
 
+.pokepaste-title-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 200px;
+}
+
 .pokepaste-title {
     font-size: 1.2rem;
     margin: 0;
     color: var(--text-primary);
     cursor: pointer;
     text-decoration: underline;
-    flex: 1;
-    min-width: 200px;
 }
 
 .pokepaste-title:hover {
-    color: var(--accent-blue);
+    color: var(--accent-green);
+}
+
+.pokepaste-author {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-left: 0.25rem;
 }
 
 .pokepaste-date {
@@ -357,39 +364,10 @@ body {
     gap: 0.75rem;
 }
 
-.pokepaste-url,
-.pokepaste-user {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.url-label,
-.user-label,
 .pokemon-label {
     font-weight: bold;
     color: var(--text-primary);
     min-width: 60px;
-}
-
-.pokepaste-link {
-    color: var(--accent-blue);
-    text-decoration: none;
-    word-break: break-all;
-}
-
-.pokepaste-link:hover {
-    text-decoration: underline;
-    color: var(--accent-blue-hover);
-}
-
-.user-id {
-    color: var(--text-secondary);
-    font-family: monospace;
-    background: var(--user-bg);
-    padding: 0.2rem 0.4rem;
-    border-radius: 3px;
 }
 
 .pokemon-names {
@@ -404,7 +382,37 @@ body {
     gap: 0.5rem;
 }
 
-.pokemon-name {
+.pokemon-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.pokemon-sprite {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: var(--pokemon-bg);
+    border: 1px solid var(--pokemon-border);
+    padding: 2px;
+    transition: transform 0.2s ease, opacity 0.3s ease;
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.pokemon-sprite:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+.pokemon-name-text {
     background: var(--pokemon-bg);
     color: var(--pokemon-text);
     padding: 0.3rem 0.6rem;
