@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Replay Data Fetch Test</title>
+    </head>
+    <body>
+        <h1>Pokemon Showdown Replay Data Fetch Test</h1>
+        <input type="text" id="replayUrl" placeholder="リプレイURLを入力" style="width: 500px" />
+        <button onclick="testFetch()">データ取得テスト</button>
+        <div id="result" style="margin-top: 20px; white-space: pre-wrap"></div>
+
+        <script>
+            async function fetchReplayData(url) {
+                const resultDiv = document.getElementById("result");
+                resultDiv.textContent = "データ取得中...";
+
+                try {
+                    // Pokemon ShowdownのJSON APIを試す
+                    const jsonUrl = url + ".json";
+                    console.log("Trying JSON API:", jsonUrl);
+
+                    const response = await fetch(jsonUrl);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        return {
+                            method: "JSON API",
+                            title: data.title || "Unknown Title",
+                            players: data.players || [],
+                            format: data.format || "Unknown Format",
+                            battleLog: data.log || "",
+                            rating: data.rating,
+                            battleDate: data.uploadtime ? new Date(data.uploadtime * 1000).toDateString() : undefined,
+                            rawData: data,
+                        };
+                    }
+                } catch (error) {
+                    console.log("JSON API failed:", error);
+                }
+
+                try {
+                    // CORSプロキシを使用してHTMLを取得
+                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                    console.log("Trying proxy:", proxyUrl);
+
+                    const response = await fetch(proxyUrl);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const htmlContent = data.contents;
+
+                        // HTMLからデータを抽出
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(htmlContent, "text/html");
+
+                        // タイトルを抽出
+                        const titleElement = doc.querySelector("title");
+                        const title = titleElement?.textContent || "Unknown Title";
+
+                        // プレイヤー名を抽出（スクリプトタグからの抽出）
+                        const scripts = doc.querySelectorAll("script");
+                        const players = [];
+                        let format = "Unknown Format";
+                        let battleLog = "";
+
+                        for (const script of scripts) {
+                            const content = script.textContent || "";
+
+                            // プレイヤー名の抽出
+                            if (content.includes("battle.p1") || content.includes("battle.p2")) {
+                                const p1Match = content.match(/battle\.p1\s*=\s*{[^}]*name:\s*["']([^"']+)["']/);
+                                const p2Match = content.match(/battle\.p2\s*=\s*{[^}]*name:\s*["']([^"']+)["']/);
+
+                                if (p1Match) players.push(p1Match[1]);
+                                if (p2Match) players.push(p2Match[1]);
+                            }
+
+                            // フォーマットの抽出
+                            if (content.includes("battle.format")) {
+                                const formatMatch = content.match(/battle\.format\s*=\s*["']([^"']+)["']/);
+                                if (formatMatch) format = formatMatch[1];
+                            }
+
+                            // バトルログの抽出
+                            if (content.includes("battle.log") || content.includes("battle.rawlog")) {
+                                const logMatch = content.match(/battle\.(?:raw)?log\s*=\s*(\[[\s\S]*?\]);/);
+                                if (logMatch) {
+                                    try {
+                                        const logArray = JSON.parse(logMatch[1]);
+                                        battleLog = logArray.join("\n");
+                                    } catch (e) {
+                                        console.warn("Failed to parse battle log:", e);
+                                    }
+                                }
+                            }
+                        }
+
+                        return {
+                            method: "HTML Proxy",
+                            title,
+                            players,
+                            format,
+                            battleLog,
+                            rating: undefined,
+                            battleDate: undefined,
+                        };
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch replay data:", error);
+                }
+
+                // すべて失敗した場合はデフォルト値を返す
+                const replayId = url.split("/").pop() || "";
+                return {
+                    method: "Default",
+                    title: `Manual Replay: ${replayId}`,
+                    players: [],
+                    format: "Unknown",
+                    battleLog: "",
+                    rating: undefined,
+                    battleDate: undefined,
+                };
+            }
+
+            async function testFetch() {
+                const url = document.getElementById("replayUrl").value;
+                if (!url) {
+                    alert("URLを入力してください");
+                    return;
+                }
+
+                try {
+                    const result = await fetchReplayData(url);
+                    document.getElementById("result").textContent = JSON.stringify(result, null, 2);
+                } catch (error) {
+                    document.getElementById("result").textContent = "エラー: " + error.message;
+                }
+            }
+        </script>
+    </body>
+</html>

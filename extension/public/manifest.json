@@ -16,7 +16,8 @@
         "https://accounts.google.com/*",
         "https://identitytoolkit.googleapis.com/*",
         "https://securetoken.googleapis.com/*",
-        "https://hayatosum.github.io/*"
+        "https://hayatosum.github.io/*",
+        "https://replay.pokemonshowdown.com/*"
     ],
     "content_security_policy": {
         "extension_pages": "script-src 'self'; object-src 'self'"
@@ -27,7 +28,7 @@
             "matches": ["<all_urls>"]
         }
     ],
-    "permissions": ["activeTab", "tabs", "storage", "identity"],
+    "permissions": ["activeTab", "tabs", "storage", "identity", "scripting"],
     "content_scripts": [
         {
             "matches": ["https://hayatosum.github.io/*"],

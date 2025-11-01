@@ -3,9 +3,10 @@ import type { PokePasteData } from '../firebase/pokePasteService';
 
 interface PokePasteItemProps {
     pokepaste: PokePasteData;
+    onDelete?: (id: string) => void;
 }
 
-export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste }) => {
+export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste, onDelete }) => {
     const formatDate = (timestamp: number) => {
         return new Date(timestamp).toLocaleString('ja-JP', {
             year: 'numeric',
@@ -18,6 +19,13 @@ export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste }) => {
 
     const handleOpenUrl = () => {
         window.open(pokepaste.url, '_blank');
+    };
+
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (onDelete && window.confirm('このPokePasteを削除しますか？')) {
+            onDelete(pokepaste.id);
+        }
     };
 
     // ポケモン名から画像URLを生成
@@ -54,9 +62,20 @@ export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste }) => {
                         </span>
                     )}
                 </div>
-                <span className="pokepaste-date">
-                    {formatDate(pokepaste.timestamp)}
-                </span>
+                <div className="pokepaste-actions">
+                    <span className="pokepaste-date">
+                        {formatDate(pokepaste.timestamp)}
+                    </span>
+                    {onDelete && (
+                        <button 
+                            className="delete-button"
+                            onClick={handleDelete}
+                            title="削除"
+                        >
+                            🗑️
+                        </button>
+                    )}
+                </div>
             </div>
             
             <div className="pokepaste-details">

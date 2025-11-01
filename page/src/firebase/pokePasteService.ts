@@ -1,4 +1,4 @@
-import { collection, getDocs, query, orderBy, limit, where } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, limit, where, doc, deleteDoc } from "firebase/firestore";
 import { db } from "./config";
 
 // PokePasteデータの型定義
@@ -118,6 +118,18 @@ export class PokePasteService {
         } catch (error) {
             console.error("Error fetching pokepastes by date range:", error);
             throw new Error("Failed to fetch pokepastes by date range");
+        }
+    }
+
+    // PokePasteを削除
+    async deletePokePaste(id: string): Promise<void> {
+        try {
+            const docRef = doc(db, "pokepastes", id);
+            await deleteDoc(docRef);
+            console.log("Document successfully deleted:", id);
+        } catch (error) {
+            console.error("Error deleting document:", error);
+            throw new Error("Failed to delete PokePaste");
         }
     }
 }

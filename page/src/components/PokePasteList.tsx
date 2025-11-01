@@ -60,6 +60,17 @@ export const PokePasteList: React.FC<PokePasteListProps> = ({
         }
     }, [filterUserId, maxItems, dateFilter]);
 
+    const handleDelete = async (id: string) => {
+        try {
+            await pokePasteService.deletePokePaste(id);
+            // 削除後にリストを再読み込み
+            await loadPokePastes();
+        } catch (err) {
+            console.error('Error deleting pokepaste:', err);
+            alert('PokePasteの削除に失敗しました');
+        }
+    };
+
     const getDateRange = (filter: string) => {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -160,7 +171,8 @@ export const PokePasteList: React.FC<PokePasteListProps> = ({
                     {pokepastes.map((pokepaste) => (
                         <PokePasteItem 
                             key={pokepaste.id} 
-                            pokepaste={pokepaste} 
+                            pokepaste={pokepaste}
+                            onDelete={handleDelete}
                         />
                     ))}
                 </div>

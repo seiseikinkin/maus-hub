@@ -13,6 +13,17 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
     
+    // ユーザー設定 - 認証されたユーザーが自分の設定のみアクセス可能
+    match /userSettings/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // リプレイデータ - 認証されたユーザーが自分のデータのみアクセス可能
+    match /replays/{replayId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+    
     // その他のドキュメントは認証が必要
     match /{document=**} {
       allow read, write: if request.auth != null;
