@@ -1,0 +1,850 @@
+/* CSS変数 - ライトテーマ */
+:root {
+    /* 背景色 */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-tertiary: #ecf0f1;
+    --bg-card: #ffffff;
+    --bg-hover: #f8f9fa;
+
+    /* テキスト色 */
+    --text-primary: #2c3e50;
+    --text-secondary: #666666;
+    --text-muted: #999999;
+    --text-light: #ffffff;
+
+    /* ボーダー色 */
+    --border-primary: #e0e0e0;
+    --border-secondary: #e9ecef;
+    --border-light: #ddd;
+
+    /* アクセント色 */
+    --accent-blue: #3498db;
+    --accent-blue-hover: #2980b9;
+    --accent-green: #27ae60;
+    --accent-green-hover: #219a52;
+    --accent-red: #e74c3c;
+    --accent-red-hover: #c0392b;
+
+    /* 特殊色 */
+    --pokemon-bg: #e8f5e8;
+    --pokemon-border: #c3e6c3;
+    --pokemon-text: #27ae60;
+    --user-bg: #f1f2f6;
+
+    /* シャドウ */
+    --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ダークテーマ */
+[data-theme="dark"] {
+    /* 背景色 */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #3a3a3a;
+    --bg-card: #2d2d2d;
+    --bg-hover: #3a3a3a;
+
+    /* テキスト色 */
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-muted: #888888;
+    --text-light: #ffffff;
+
+    /* ボーダー色 */
+    --border-primary: #404040;
+    --border-secondary: #505050;
+    --border-light: #606060;
+
+    /* アクセント色（少し調整） */
+    --accent-blue: #4fa8d8;
+    --accent-blue-hover: #3498db;
+    --accent-green: #2ecc71;
+    --accent-green-hover: #27ae60;
+    --accent-red: #e67e22;
+    --accent-red-hover: #d35400;
+
+    /* 特殊色 */
+    --pokemon-bg: #2d4a2d;
+    --pokemon-border: #4a6b4a;
+    --pokemon-text: #5cb85c;
+    --user-bg: #3a3a3a;
+
+    /* シャドウ */
+    --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.3);
+    --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* bodyのテーマ適用 */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* アプリケーション全体のスタイル */
+.app {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-primary);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header-text {
+    text-align: center;
+    flex: 1;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.app-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.app-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+.app-main {
+    flex: 1;
+}
+
+.app-footer {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-primary);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: 3rem;
+}
+
+/* テーマ切り替えボタン */
+.theme-toggle-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 2px solid var(--border-primary);
+    padding: 0.75rem 1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    min-width: 100px;
+    justify-content: center;
+}
+
+.theme-toggle-button:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-blue);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-light);
+}
+
+.theme-icon {
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+}
+
+.theme-text {
+    font-weight: 500;
+} /* フィルターセクション */
+.filters-section {
+    margin-bottom: 2rem;
+}
+
+.toggle-filters-button {
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.toggle-filters-button:hover {
+    background: var(--accent-blue-hover);
+}
+
+.filters {
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    border: 1px solid var(--border-secondary);
+}
+
+.user-filter label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.filter-input-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.filter-input-group input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    font-size: 1rem;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.filter-input-group input::placeholder {
+    color: var(--text-muted);
+}
+
+.clear-filter-button {
+    background: var(--accent-red);
+    color: var(--text-light);
+    border: none;
+    padding: 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.clear-filter-button:hover {
+    background: var(--accent-red-hover);
+}
+
+/* PokePasteリストのスタイル */
+.pokepaste-list {
+    background: var(--bg-card);
+    border-radius: 8px;
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    border: 1px solid var(--border-primary);
+}
+
+.pokepaste-list-header {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.pokepaste-list-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.date-filter {
+    padding: 0.5rem;
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.refresh-button {
+    background: var(--accent-green);
+    color: var(--text-light);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.refresh-button:hover {
+    background: var(--accent-green-hover);
+}
+.pokepaste-count {
+    padding: 1rem 1.5rem;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-weight: bold;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.pokepaste-items {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* PokePasteアイテムのスタイル */
+.pokepaste-item {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-primary);
+    transition: background-color 0.2s;
+    background: var(--bg-card);
+}
+
+.pokepaste-item:hover {
+    background: var(--bg-hover);
+}
+.pokepaste-item:last-child {
+    border-bottom: none;
+}
+
+.pokepaste-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.pokepaste-title {
+    font-size: 1.2rem;
+    margin: 0;
+    color: var(--text-primary);
+    cursor: pointer;
+    text-decoration: underline;
+    flex: 1;
+    min-width: 200px;
+}
+
+.pokepaste-title:hover {
+    color: var(--accent-blue);
+}
+
+.pokepaste-date {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+.pokepaste-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.pokepaste-url,
+.pokepaste-user {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.url-label,
+.user-label,
+.pokemon-label {
+    font-weight: bold;
+    color: var(--text-primary);
+    min-width: 60px;
+}
+
+.pokepaste-link {
+    color: var(--accent-blue);
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.pokepaste-link:hover {
+    text-decoration: underline;
+    color: var(--accent-blue-hover);
+}
+
+.user-id {
+    color: var(--text-secondary);
+    font-family: monospace;
+    background: var(--user-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+}
+
+.pokemon-names {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.pokemon-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.pokemon-name {
+    background: var(--pokemon-bg);
+    color: var(--pokemon-text);
+    padding: 0.3rem 0.6rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    border: 1px solid var(--pokemon-border);
+} /* ローディングとエラー状態 */
+.pokepaste-list-loading {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+    background: var(--bg-card);
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border-primary);
+    border-top: 4px solid var(--accent-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.pokepaste-list-error {
+    text-align: center;
+    padding: 3rem;
+    color: var(--accent-red);
+    background: var(--bg-card);
+}
+
+.pokepaste-list-error h3 {
+    margin-bottom: 1rem;
+    color: var(--accent-red);
+}
+
+.retry-button {
+    background: var(--accent-red);
+    color: var(--text-light);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 1rem;
+}
+
+.retry-button:hover {
+    background: var(--accent-red-hover);
+}
+
+.no-pokepastes {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+    background: var(--bg-card);
+} /* レスポンシブデザイン */
+@media (max-width: 768px) {
+    .app {
+        padding: 1rem;
+    }
+
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .header-controls {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .login-card {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+
+    .login-header h2 {
+        font-size: 2rem;
+    }
+
+    .profile-dropdown {
+        right: auto;
+        left: 0;
+    }
+    .pokepaste-list-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .controls {
+        justify-content: center;
+    }
+
+    .pokepaste-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pokepaste-url,
+    .pokepaste-user {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pokemon-list {
+        justify-content: flex-start;
+    }
+}
+
+/* 認証関連のスタイル */
+.auth-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--bg-primary);
+}
+
+.auth-loading-content {
+    text-align: center;
+    padding: 2rem;
+}
+
+.auth-loading-content h2 {
+    color: var(--text-primary);
+    margin: 1rem 0;
+    font-size: 2rem;
+}
+
+.auth-loading-content p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* ログイン画面 */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--bg-primary);
+    padding: 2rem;
+}
+
+.login-card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    border: 1px solid var(--border-primary);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header h2 {
+    color: var(--text-primary);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.login-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.access-notice {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 6px;
+}
+
+.access-notice p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+.login-content {
+    margin-bottom: 2rem;
+}
+
+.login-features {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border-secondary);
+}
+
+.login-features h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.login-features ul {
+    color: var(--text-secondary);
+    padding-left: 1.5rem;
+}
+
+.login-features li {
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.login-actions {
+    text-align: center;
+}
+
+.google-signin-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 2px solid var(--border-primary);
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.google-signin-button:hover:not(:disabled) {
+    background: var(--bg-hover);
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-light);
+}
+
+.google-signin-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.google-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.loading-spinner-small {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-primary);
+    border-top: 2px solid var(--accent-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.login-error {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--accent-red);
+    color: var(--text-light);
+    border-radius: 6px;
+    text-align: center;
+}
+
+.login-footer {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-primary);
+    padding-top: 1.5rem;
+}
+
+.login-footer a {
+    color: var(--accent-blue);
+    text-decoration: none;
+}
+
+.login-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ユーザープロフィール */
+.user-profile {
+    position: relative;
+}
+
+.profile-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 2px solid var(--border-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.profile-button:hover:not(:disabled) {
+    background: var(--bg-hover);
+    border-color: var(--accent-blue);
+}
+
+.profile-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.profile-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-avatar-placeholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.profile-name {
+    font-weight: 500;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dropdown-arrow {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 0.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    box-shadow: var(--shadow-card);
+    min-width: 220px;
+    z-index: 1000;
+}
+
+.dropdown-content {
+    padding: 1rem;
+}
+
+.user-info {
+    margin-bottom: 1rem;
+}
+
+.user-name {
+    font-weight: bold;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+}
+
+.user-email {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+    word-break: break-all;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--border-primary);
+    margin: 1rem 0;
+}
+
+.signout-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: var(--accent-red);
+    color: var(--text-light);
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+.signout-button:hover:not(:disabled) {
+    background: var(--accent-red-hover);
+}
+
+.signout-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.filter-info {
+    background: var(--bg-tertiary);
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-secondary);
+}
+
+.filter-info p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    text-align: center;
+}
