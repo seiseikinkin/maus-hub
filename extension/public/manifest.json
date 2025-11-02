@@ -16,7 +16,7 @@
         "https://accounts.google.com/*",
         "https://identitytoolkit.googleapis.com/*",
         "https://securetoken.googleapis.com/*",
-        "https://seiseikinkin.github.io/maus-hub/extension/*",
+        "https://seiseikinkin.github.io/maus-hub/*",
         "https://replay.pokemonshowdown.com/*",
         "https://play.pokemonshowdown.com/*"
     ],
@@ -32,7 +32,7 @@
     "permissions": ["activeTab", "tabs", "storage", "identity", "scripting"],
     "content_scripts": [
         {
-            "matches": ["https://seiseikinkin.github.io/maus-hub/extension/*"],
+            "matches": ["https://seiseikinkin.github.io/maus-hub/*"],
             "js": ["content.js"],
             "run_at": "document_end"
         },

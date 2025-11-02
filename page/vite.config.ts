@@ -16,5 +16,6 @@ export default defineConfig({
         outDir: "dist",
         sourcemap: false,
         assetsDir: "assets",
+        copyPublicDir: true, // publicディレクトリの内容をコピー
     },
 });
