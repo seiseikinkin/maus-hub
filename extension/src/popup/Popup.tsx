@@ -1,36 +1,14 @@
 import React, { useState, useEffect } from "react";
 import LoginComponent from "../components/LoginComponent";
-import type { UserProfile } from "../firebase/authService";
-
-interface PokePasteItem {
-    url: string;
-    title: string;
-    timestamp: number;
-    id: string;
-    author?: string;
-    pokemonNames?: string[];
-}
 
 
 
 const Popup: React.FC = () => {
-    const [currentUrl, setCurrentUrl] = useState<string>("");
     const [isPokePastSite, setIsPokePastSite] = useState<boolean>(false);
     const [isReplaySite, setIsReplaySite] = useState<boolean>(false);
     const [status, setStatus] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [savedUrls, setSavedUrls] = useState<PokePasteItem[]>([]);
-    const [showList, setShowList] = useState<boolean>(false);
-    const [user, setUser] = useState<UserProfile | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-
-    // 認証状態表示用
-    const getUserDisplayText = () => {
-        if (isAuthenticated && user) {
-            return `✅ ${user.displayName}`;
-        }
-        return "❌ ログインしていません";
-    };
 
     // ダークテーマの色定義
     const darkTheme = {
@@ -66,21 +44,17 @@ const Popup: React.FC = () => {
 
                 if (result.currentUser && result.isAuthenticated) {
                     console.log("User authenticated:", result.currentUser);
-                    setUser(result.currentUser);
                     setIsAuthenticated(true);
-                    setStatus("✅ ログイン成功！すべての機能が利用可能です");
                 } else {
                     console.log("User not authenticated - missing data:", {
                         hasCurrentUser: !!result.currentUser,
                         isAuthenticated: result.isAuthenticated
                     });
-                    setUser(null);
                     setIsAuthenticated(false);
                     setStatus("");
                 }
             } catch (error) {
                 console.error("Error loading auth state:", error);
-                setUser(null);
                 setIsAuthenticated(false);
                 setStatus("❌ 認証状態の読み込みに失敗しました");
             }
@@ -94,7 +68,6 @@ const Popup: React.FC = () => {
 
             const activeTab = tabs[0];
             if (activeTab?.url) {
-                setCurrentUrl(activeTab.url);
                 setIsPokePastSite(activeTab.url.includes("pokepast.es"));
                 setIsReplaySite(activeTab.url.includes("replay.pokemonshowdown.com"));
             }
@@ -118,31 +91,6 @@ const Popup: React.FC = () => {
         };
     }, []);
 
-    // URL一覧を読み込み
-    const loadSavedUrls = () => {
-        chrome.runtime.sendMessage({ action: "getPokePasteList" }, (response: unknown) => {
-            if (chrome.runtime.lastError || !response) {
-                setSavedUrls([]);
-                return;
-            }
-
-            if (typeof response === "object" && response !== null) {
-                const responseObj = response as Record<string, unknown>;
-                if ("success" in responseObj && responseObj.success === true) {
-                    if ("data" in responseObj && Array.isArray(responseObj.data)) {
-                        setSavedUrls(responseObj.data);
-                    } else {
-                        setSavedUrls([]);
-                    }
-                } else {
-                    setSavedUrls([]);
-                }
-            } else {
-                setSavedUrls([]);
-            }
-        });
-    };
-
     // URL追加処理
     const handleAddClick = () => {
         setIsLoading(true);
@@ -160,9 +108,6 @@ const Popup: React.FC = () => {
                 const responseObj = response as Record<string, unknown>;
                 if ("success" in responseObj && responseObj.success === true) {
                     setStatus("✅ URLを保存しました！");
-                    if (showList) {
-                        loadSavedUrls();
-                    }
                 } else if ("error" in responseObj && typeof responseObj.error === "string") {
                     setStatus(`❌ エラー: ${responseObj.error}`);
                 } else {
@@ -421,40 +366,14 @@ const Popup: React.FC = () => {
         });
     };
 
-    // リスト表示切り替え
-    const handleToggleList = () => {
-        if (!showList) {
-            loadSavedUrls();
-        }
-        setShowList(!showList);
-    };
-
     // ログインハンドラー
-    const handleLogin = (userProfile: UserProfile) => {
-        setUser(userProfile);
+    const handleLogin = () => {
         setIsAuthenticated(true);
     };
 
     // ログアウトハンドラー
     const handleLogout = () => {
-        setUser(null);
         setIsAuthenticated(false);
-    };
-
-    // 日付フォーマット
-    const formatDate = (timestamp: number): string => {
-        return new Date(timestamp).toLocaleString("ja-JP", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-    };
-
-    // URL開く
-    const openUrl = (url: string) => {
-        chrome.tabs.create({ url });
     };
 
     return (
@@ -476,27 +395,16 @@ const Popup: React.FC = () => {
                     marginBottom: "12px",
                 }}
             >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <h2
-                        style={{
-                            margin: "0",
-                            color: darkTheme.primary,
-                            fontSize: "16px",
-                            fontWeight: "600",
-                        }}
-                    >
-                        PokePaste Extension
-                    </h2>
-                    <div
-                        style={{
-                            fontSize: "11px",
-                            color: isAuthenticated ? darkTheme.success : darkTheme.warning,
-                            fontWeight: "600",
-                        }}
-                    >
-                        {getUserDisplayText()}
-                    </div>
-                </div>
+                <h2
+                    style={{
+                        margin: "0",
+                        color: darkTheme.primary,
+                        fontSize: "16px",
+                        fontWeight: "600",
+                    }}
+                >
+                    Maus Hub Extension
+                </h2>
             </div>
 
             {/* ログインコンポーネント */}
@@ -505,41 +413,6 @@ const Popup: React.FC = () => {
             {/* 認証時のみ表示される機能 */}
             {isAuthenticated && (
                 <div>
-                    {/* 現在のURL表示 */}
-                    <div
-                        style={{
-                            marginBottom: "12px",
-                            padding: "10px",
-                            backgroundColor: darkTheme.surface,
-                            borderRadius: "6px",
-                            border: `1px solid ${darkTheme.border}`,
-                        }}
-                    >
-                        <div
-                            style={{
-                                fontSize: "12px",
-                                color: darkTheme.onSurface,
-                                fontWeight: "500",
-                                marginBottom: "6px",
-                            }}
-                        >
-                            Current URL:
-                        </div>
-                        <div
-                            style={{
-                                wordBreak: "break-all",
-                                backgroundColor: darkTheme.surfaceVariant,
-                                padding: "6px 8px",
-                                borderRadius: "4px",
-                                fontSize: "11px",
-                                color: darkTheme.onSurface,
-                                border: `1px solid ${darkTheme.borderLight}`,
-                            }}
-                        >
-                            {currentUrl || "Loading..."}
-                        </div>
-                    </div>
-
                     {/* メインボタン */}
                     <div style={{ marginBottom: "12px" }}>
                         {/* PokePaste セクション */}
@@ -649,26 +522,6 @@ const Popup: React.FC = () => {
                             {isLoading ? "処理中..." : isReplaySite ? "リプレイを追加" : "無効"}
                         </button>
 
-                        {/* ヘルプテキスト */}
-                        {!isPokePastSite && !isReplaySite && (
-                            <div
-                                style={{
-                                    marginTop: "6px",
-                                    padding: "8px",
-                                    fontSize: "11px",
-                                    color: darkTheme.warning,
-                                    backgroundColor: `${darkTheme.warning}20`,
-                                    border: `1px solid ${darkTheme.warning}40`,
-                                    borderRadius: "4px",
-                                    textAlign: "center",
-                                    lineHeight: "1.4",
-                                }}
-                            >
-                                📝 pokepast.es または<br />
-                                🎬 replay.pokemonshowdown.com<br />
-                                でご利用ください
-                            </div>
-                        )}
                     </div>
 
                     {/* ステータス表示 */}
@@ -690,155 +543,7 @@ const Popup: React.FC = () => {
                         </div>
                     )}
 
-                    {/* URL一覧 */}
-                    <div
-                        style={{
-                            marginTop: "16px",
-                            borderTop: `1px solid ${darkTheme.border}`,
-                            paddingTop: "12px",
-                        }}
-                    >
-                        <button
-                            onClick={handleToggleList}
-                            style={{
-                                width: "100%",
-                                padding: "8px 14px",
-                                backgroundColor: darkTheme.primary,
-                                color: darkTheme.background,
-                                border: "none",
-                                borderRadius: "5px",
-                                fontSize: "13px",
-                                fontWeight: "500",
-                                cursor: "pointer",
-                                transition: "all 0.2s ease",
-                                boxShadow: `0 3px 8px ${darkTheme.primary}30`,
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = darkTheme.primaryVariant;
-                                e.currentTarget.style.transform = "translateY(-1px)";
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = darkTheme.primary;
-                                e.currentTarget.style.transform = "translateY(0)";
-                            }}
-                        >
-                            {showList ? "リストを非表示" : "保存されたURLを表示"}
-                        </button>
 
-                        {showList && (
-                            <div style={{ marginTop: "12px" }}>
-                                <h3
-                                    style={{
-                                        margin: "0 0 8px 0",
-                                        fontSize: "14px",
-                                        color: darkTheme.onSurface,
-                                    }}
-                                >
-                                    保存されたURL ({savedUrls.length}件)
-                                </h3>
-                                {savedUrls.length === 0 ? (
-                                    <div
-                                        style={{
-                                            padding: "12px",
-                                            textAlign: "center",
-                                            color: darkTheme.onSurfaceVariant,
-                                            fontStyle: "italic",
-                                            backgroundColor: darkTheme.surface,
-                                            border: `1px solid ${darkTheme.border}`,
-                                            borderRadius: "6px",
-                                        }}
-                                    >
-                                        保存されたURLはありません
-                                    </div>
-                                ) : (
-                                    <div
-                                        style={{
-                                            maxHeight: "250px",
-                                            overflowY: "auto",
-                                            border: `1px solid ${darkTheme.border}`,
-                                            borderRadius: "6px",
-                                            backgroundColor: darkTheme.surface,
-                                        }}
-                                    >
-                                        {savedUrls.map((item) => (
-                                            <div
-                                                key={item.id}
-                                                style={{
-                                                    padding: "8px 10px",
-                                                    borderBottom: `1px solid ${darkTheme.border}`,
-                                                    cursor: "pointer",
-                                                    transition: "all 0.2s ease",
-                                                    backgroundColor: "transparent",
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    e.currentTarget.style.backgroundColor = darkTheme.surfaceVariant;
-                                                    e.currentTarget.style.transform = "translateX(2px)";
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    e.currentTarget.style.backgroundColor = "transparent";
-                                                    e.currentTarget.style.transform = "translateX(0)";
-                                                }}
-                                                onClick={() => openUrl(item.url)}
-                                            >
-                                                <div
-                                                    style={{
-                                                        fontWeight: "bold",
-                                                        fontSize: "11px",
-                                                        color: darkTheme.onSurface,
-                                                        marginBottom: "3px",
-                                                        wordBreak: "break-all",
-                                                    }}
-                                                >
-                                                    {item.title}
-                                                </div>
-                                                {item.author && (
-                                                    <div
-                                                        style={{
-                                                            fontSize: "9px",
-                                                            color: darkTheme.secondary,
-                                                            marginBottom: "2px",
-                                                        }}
-                                                    >
-                                                        👤 by {item.author}
-                                                    </div>
-                                                )}
-                                                {item.pokemonNames && item.pokemonNames.length > 0 && (
-                                                    <div
-                                                        style={{
-                                                            fontSize: "9px",
-                                                            color: darkTheme.warning,
-                                                            marginBottom: "3px",
-                                                            wordBreak: "break-word",
-                                                        }}
-                                                    >
-                                                        🎮 {item.pokemonNames.join(", ")}
-                                                    </div>
-                                                )}
-                                                <div
-                                                    style={{
-                                                        fontSize: "9px",
-                                                        color: darkTheme.primary,
-                                                        marginBottom: "3px",
-                                                        wordBreak: "break-all",
-                                                    }}
-                                                >
-                                                    {item.url}
-                                                </div>
-                                                <div
-                                                    style={{
-                                                        fontSize: "9px",
-                                                        color: darkTheme.onSurfaceVariant,
-                                                    }}
-                                                >
-                                                    {formatDate(item.timestamp)}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
                 </div>
             )}
         </div>

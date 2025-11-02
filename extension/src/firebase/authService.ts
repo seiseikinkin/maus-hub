@@ -31,7 +31,7 @@ class AuthService {
         try {
             // GitHub Pages の認証URL（拡張機能IDを含める）
             const extensionId = chrome.runtime.id;
-            const authUrl = `https://hayatosum.github.io/tools/extension/auth.html?extension=true&extensionId=${extensionId}`;
+            const authUrl = `https://seiseikinkin.github.io/maus-hub/extension/auth.html?extension=true&extensionId=${extensionId}`;
 
             // 新しいタブで認証ページを開く
             const authTab = await chrome.tabs.create({

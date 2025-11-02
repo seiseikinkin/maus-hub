@@ -106,7 +106,6 @@ body {
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    padding-bottom: 2rem;
 }
 
 /* アプリケーション全体のスタイル */
@@ -377,7 +376,7 @@ body {
 .pokepaste-list-header {
     background: var(--bg-tertiary);
     color: var(--text-primary);
-    padding: 1rem 0.5rem;
+    padding: 1rem 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -710,11 +709,12 @@ body {
 .loading-spinner {
     width: 40px;
     height: 40px;
-    border: 4px solid var(--border-primary);
-    border-top: 4px solid var(--accent-blue);
+    border: 4px solid #e0e0e0;
+    border-top: 4px solid #4fc3f7;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 1rem;
+    display: block;
 }
 @keyframes spin {
     0% {
@@ -989,10 +989,11 @@ body {
 .loading-spinner-small {
     width: 20px;
     height: 20px;
-    border: 2px solid var(--border-primary);
-    border-top: 2px solid var(--accent-blue);
+    border: 2px solid #e0e0e0;
+    border-top: 2px solid #4fc3f7;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    display: block;
 }
 
 .login-error {
@@ -1015,6 +1016,17 @@ body {
 .login-footer a {
     color: var(--accent-blue);
     text-decoration: none;
+}
+
+/* ダークテーマ用のスピナー */
+[data-theme="dark"] .loading-spinner {
+    border: 4px solid #3a3a3a;
+    border-top: 4px solid #4fc3f7;
+}
+
+[data-theme="dark"] .loading-spinner-small {
+    border: 2px solid #3a3a3a;
+    border-top: 2px solid #4fc3f7;
 }
 
 .login-footer a:hover {
@@ -1847,7 +1859,6 @@ body {
     text-decoration: underline;
 }
 
-.loading-spinner,
 .error-message,
 .no-data-message {
     display: flex;
@@ -1937,10 +1948,6 @@ body {
     transform: scale(1.1);
     z-index: 10;
     position: relative;
-}
-
-.team-pokemon {
-    opacity: 0.8;
 }
 
 .selected-pokemon {

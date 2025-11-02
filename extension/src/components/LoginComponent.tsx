@@ -109,20 +109,20 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ onLogin, onLogout, dark
                     border: `1px solid ${darkTheme.success}40`,
                 }}
             >
-                <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "8px" }}>
                     {user.photoURL && (
                         <img
                             src={user.photoURL}
                             alt="Profile"
                             style={{
-                                width: "24px",
-                                height: "24px",
+                                width: "32px",
+                                height: "32px",
                                 borderRadius: "50%",
-                                marginRight: "8px",
+                                marginBottom: "8px",
                             }}
                         />
                     )}
-                    <div>
+                    <div style={{ textAlign: "center" }}>
                         <div
                             style={{
                                 fontSize: "14px",
@@ -141,17 +141,6 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ onLogin, onLogout, dark
                             {user.email}
                         </div>
                     </div>
-                </div>
-                <div
-                    style={{
-                        fontSize: "12px",
-                        color: darkTheme.success,
-                        fontWeight: "600",
-                        marginBottom: "8px",
-                        textAlign: "center",
-                    }}
-                >
-                    ✅ ログイン成功！すべての機能が利用可能です
                 </div>
                 <button
                     onClick={handleLogout}
@@ -192,7 +181,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ onLogin, onLogout, dark
                     textAlign: "center",
                 }}
             >
-                Login to sync your data
+                データを同期するにはログインしてください
             </h3>
 
             {error && (
@@ -237,7 +226,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ onLogin, onLogout, dark
                         marginTop: "8px",
                     }}
                 >
-                    管理者によって許可されたGoogleアカウントのみログイン可能です
+                    管理者によって許可されたGoogleアカウントのみ利用可能です
                 </div>
             </div>
         </div>

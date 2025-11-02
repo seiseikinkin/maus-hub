@@ -103,7 +103,6 @@ const SettingsPage: React.FC = () => {
     return (
         <div className="settings-page">
             <div className="settings-container">
-                <h2>設定</h2>
                 
                 {message && (
                     <div className={`message ${messageType}`}>
@@ -112,12 +111,11 @@ const SettingsPage: React.FC = () => {
                 )}
 
                 <div className="settings-section">
-                    <h3>プレイヤー設定</h3>
                     <div className="setting-item">
-                        <label>Pokemon Showdownプレイヤー名</label>
+                        <label>Pokemon Showdown! ユーザー名</label>
                         <p className="setting-description">
-                            あなたのPokemon Showdownで使用しているプレイヤー名を入力してください。
-                            複数のアカウントがある場合は、それぞれのプレイヤー名を追加できます。
+                            あなたのPokemon Showdown! で使用しているユーザー名を入力してください。
+                            複数のアカウントがある場合は、それぞれのユーザー名を追加できます。
                             リプレイ一覧で勝敗を表示するために使用されます。
                         </p>
                         
@@ -151,7 +149,7 @@ const SettingsPage: React.FC = () => {
                             disabled={loading || saving}
                             className="add-button"
                         >
-                            + プレイヤー名を追加
+                            + ユーザー名を追加
                         </button>
                     </div>
                 </div>
@@ -169,11 +167,11 @@ const SettingsPage: React.FC = () => {
                 <div className="settings-info">
                     <h4>設定について</h4>
                     <ul>
-                        <li>プレイヤー名は Pokemon Showdown で使用している名前と完全に一致する必要があります</li>
+                        <li>ユーザー名は Pokemon Showdown! で使用している名前と完全に一致する必要があります</li>
                         <li>大文字小文字の違いも考慮されます</li>
-                        <li>複数のアカウントがある場合、すべてのプレイヤー名を登録できます</li>
+                        <li>複数のアカウントがある場合、すべてのユーザー名を登録できます</li>
                         <li>設定後、リプレイ一覧で勝敗が表示されるようになります</li>
-                        <li>空のプレイヤー名は自動的に除去されます</li>
+                        <li>空のユーザー名は自動的に除去されます</li>
                     </ul>
                 </div>
             </div>

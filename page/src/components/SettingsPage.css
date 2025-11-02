@@ -69,18 +69,24 @@
 
 .setting-input {
     width: 100%;
-    padding: 0.75rem;
-    border: 2px solid var(--border-color);
+    padding: 1rem;
+    border: 2px solid #4a4a4a;
     border-radius: 8px;
     font-size: 1rem;
     background: var(--bg-primary);
     color: var(--text-primary);
-    transition: border-color 0.2s ease;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .setting-input:focus {
     outline: none;
-    border-color: var(--primary-color);
+    border-color: #4fc3f7;
+    box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.2);
+}
+
+.setting-input:hover:not(:disabled) {
+    border-color: #666;
 }
 
 .setting-input:disabled {
@@ -95,27 +101,32 @@
 }
 
 .save-button {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
     color: white;
-    border: none;
-    padding: 0.75rem 2rem;
+    border: 2px solid transparent;
+    padding: 1rem 2.5rem;
     border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 1.1rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .save-button:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px rgba(79, 195, 247, 0.4);
+    background: linear-gradient(135deg, #29b6f6 0%, #1e88e5 100%);
 }
 
 .save-button:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
     transform: none;
-    box-shadow: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: #666;
 }
 
 .settings-info {
@@ -155,6 +166,21 @@
     border-color: #5a2d2d;
 }
 
+[data-theme="dark"] .setting-input {
+    border-color: #666;
+    background: #2d2d2d;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .setting-input:hover:not(:disabled) {
+    border-color: #888;
+}
+
+[data-theme="dark"] .setting-input:focus {
+    border-color: #4fc3f7;
+    background: #3a3a3a;
+}
+
 /* 複数プレーヤー名入力用のスタイル */
 .player-name-input-group {
     display: flex;
@@ -171,9 +197,10 @@
 .remove-button {
     background: #dc3545;
     color: white;
-    border: none;
-    width: 32px;
-    height: 32px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
     font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
@@ -182,38 +209,45 @@
     justify-content: center;
     transition: all 0.2s ease;
     flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
 }
 
 .remove-button:hover:not(:disabled) {
     background: #c82333;
-    transform: scale(1.1);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
 }
 
 .remove-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
 }
 
 .add-button {
-    background: var(--primary-color);
+    background: #4fc3f7;
     color: white;
-    border: none;
-    padding: 0.5rem 1rem;
+    border: 2px solid transparent;
+    padding: 0.7rem 1.2rem;
     border-radius: 6px;
     font-size: 0.9rem;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     margin-top: 0.5rem;
+    box-shadow: 0 2px 4px rgba(79, 195, 247, 0.3);
 }
 
 .add-button:hover:not(:disabled) {
-    background: var(--secondary-color);
-    transform: translateY(-1px);
+    background: #29b6f6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(79, 195, 247, 0.4);
 }
 
 .add-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
 }

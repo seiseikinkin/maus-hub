@@ -4,7 +4,7 @@ console.log("Content script loaded for auth page");
 // ページからのメッセージを監視
 window.addEventListener("message", (event) => {
     // セキュリティチェック：同じオリジンからのメッセージのみ受け入れ
-    if (event.origin !== "https://hayatosum.github.io") {
+    if (event.origin !== "https://seiseikinkin.github.io") {
         return;
     }
 
