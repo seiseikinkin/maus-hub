@@ -42,7 +42,6 @@ body {
     padding: 0;
     width: fit-content;
     height: fit-content;
-    overflow: hidden;
 }
 
 /* Chrome拡張機能では不要なスタイルを削除し、最小限の設定のみ保持 */
