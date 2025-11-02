@@ -136,11 +136,12 @@ function extractSimpleReplayData() {
         title: title,
         players: players,
         rating: null,
-        battleDate: new Date().toISOString(),
+        battleDate: new Date().toDateString(), // 手動登録と同じ形式
         format: format,
         teams: teams,
         battleLog: "", // 簡潔版ではログを省略
         timestamp: Date.now(),
+        battleStartTime: new Date().toISOString(), // ISO形式で設定
     };
 }
 

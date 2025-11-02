@@ -387,7 +387,6 @@ const AnalysisPage: React.FC = () => {
             <div className="analysis-page">
                 <div className="loading-spinner">
                     <div className="spinner"></div>
-                    <p>分析データを読み込み中...</p>
                 </div>
             </div>
         );

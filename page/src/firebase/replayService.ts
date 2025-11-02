@@ -282,6 +282,17 @@ export class ReplayService {
     // リプレイを追加
     async addReplay(replayData: Omit<ReplayData, "id" | "userId">, userId: string): Promise<string> {
         try {
+            // 重複チェック
+            console.log("Checking for duplicate replay:", replayData.url);
+            const replaysRef = collection(db, "replays");
+            const duplicateQuery = query(replaysRef, where("url", "==", replayData.url), where("userId", "==", userId));
+            const duplicateSnapshot = await getDocs(duplicateQuery);
+
+            if (!duplicateSnapshot.empty) {
+                console.log("Duplicate replay found, skipping add:", replayData.url);
+                throw new Error("このリプレイは既に保存されています");
+            }
+
             // バトルログから選出ポケモンを抽出
             const selectedPokemon = this.extractSelectedPokemon(replayData.battleLog, replayData.players);
 
@@ -289,15 +300,19 @@ export class ReplayService {
                 ...replayData,
                 selectedPokemon, // 選出ポケモンを追加
                 userId,
-                timestamp: Date.now(),
+                timestamp: replayData.timestamp || Date.now(), // 元のタイムスタンプを保持
                 createdAt: Date.now(),
             };
 
+            console.log("Adding new replay:", replayData.url);
             const docRef = await addDoc(collection(db, "replays"), replayWithUser);
             console.log("Replay successfully added:", docRef.id);
             return docRef.id;
         } catch (error) {
             console.error("Error adding replay:", error);
+            if (error instanceof Error && error.message.includes("既に保存されています")) {
+                throw error; // 重複エラーはそのまま再throw
+            }
             throw new Error("Failed to add replay");
         }
     }

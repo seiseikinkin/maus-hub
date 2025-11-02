@@ -158,7 +158,14 @@ chrome.runtime.onMessage.addListener((request: ExtensionMessage, sender: chrome.
             return true;
         }
 
-        if (!request || typeof request.action !== "string") {
+        // Pokemon Showdownからの自動リプレイ登録（typeフィールドを使用）
+        if (request && request.type === "AUTO_REGISTER_REPLAY" && request.data) {
+            console.log("Background: AUTO_REGISTER_REPLAY request received:", request.data);
+            handleAutoRegisterReplay(request.data, sendResponse);
+            return true; // 非同期レスポンスを示す
+        }
+
+        if (!request || (typeof request.action !== "string" && typeof request.type !== "string")) {
             sendResponse({
                 success: false,
                 error: "不正なリクエスト形式です",
@@ -179,6 +186,11 @@ chrome.runtime.onMessage.addListener((request: ExtensionMessage, sender: chrome.
         if (request.action === "saveReplay" && request.data) {
             handleSaveReplay(request as { data: ReplayData }, sendResponse);
             return true; // 非同期レスポンスを示す
+        }
+
+        if (request.action === "checkAuth") {
+            handleCheckAuth(sendResponse);
+            return true; // 非同期レスポンス
         }
 
         if (request.action === "ping") {
@@ -393,6 +405,24 @@ async function handleGetPokePasteList(sendResponse: (response?: unknown) => void
 }
 
 // リプレイ保存処理
+async function handleCheckAuth(sendResponse: (response?: unknown) => void) {
+    try {
+        const currentUser = await getCurrentUser();
+        sendResponse({
+            success: true,
+            authenticated: !!currentUser,
+            user: currentUser ? { uid: currentUser.uid, email: currentUser.email } : null,
+        });
+    } catch (error) {
+        console.error("Auth check error:", error);
+        sendResponse({
+            success: false,
+            authenticated: false,
+            error: "認証チェック中にエラーが発生しました",
+        });
+    }
+}
+
 async function handleSaveReplay(request: { data: ReplayData }, sendResponse: (response?: unknown) => void) {
     try {
         console.log("handleSaveReplay called");
@@ -433,25 +463,41 @@ async function handleSaveReplay(request: { data: ReplayData }, sendResponse: (re
 
         const replayData = request.data;
 
-        // リプレイ情報を作成
-        const newReplay = {
-            url: replayData.url,
-            players: replayData.players,
-            rating: replayData.rating,
+        // リプレイ情報を作成（undefinedの値を適切に処理）
+        console.log("handleSaveReplay: Input replay data:", {
             battleDate: replayData.battleDate,
             format: replayData.format,
-            teams: replayData.teams,
-            selectedPokemon: replayData.selectedPokemon || {},
-            battleLog: replayData.battleLog,
             timestamp: replayData.timestamp,
+        });
+
+        const rawReplay = {
+            url: replayData.url || "",
+            players: replayData.players || [],
+            rating: replayData.rating,
+            battleDate: replayData.battleDate || new Date().toISOString().split("T")[0],
+            format: replayData.format || "Unknown Format",
+            teams: replayData.teams || {},
+            selectedPokemon: replayData.selectedPokemon || {},
+            battleLog: replayData.battleLog || "",
+            timestamp: replayData.timestamp || Date.now(),
             totalTurns: replayData.totalTurns,
             battleStartTime: replayData.battleStartTime,
             userId: currentUser.uid,
             createdAt: Date.now(),
         };
 
+        console.log("handleSaveReplay: Final values used:", {
+            battleDate: rawReplay.battleDate,
+            format: rawReplay.format,
+            timestamp: rawReplay.timestamp,
+        });
+
+        // undefinedの値を削除してFirestore用にクリーンアップ
+        const newReplay = Object.fromEntries(Object.entries(rawReplay).filter(([, value]) => value !== undefined));
+
         try {
-            console.log("Attempting to save replay to Firestore:", newReplay);
+            console.log("Raw replay data before cleanup:", rawReplay);
+            console.log("Cleaned replay data for Firestore:", newReplay);
             console.log("Firebase auth state:", auth.currentUser?.uid, auth.currentUser?.email);
 
             // Firestoreで重複チェック
@@ -496,6 +542,354 @@ async function handleSaveReplay(request: { data: ReplayData }, sendResponse: (re
         sendResponse({
             success: false,
             error: `処理エラー: ${error instanceof Error ? error.message : "不明なエラー"}`,
+        });
+    }
+}
+
+// Pokemon Showdown APIからリプレイデータを取得する関数
+async function fetchReplayDataFromAPI(replayUrl: string): Promise<{
+    players: string[];
+    format: string;
+    battleLog: string;
+    rating?: number;
+    battleDate?: string;
+    teams: Record<string, string[]>;
+    totalTurns: number;
+    battleStartTime: string | null;
+    selectedPokemon: Record<string, string[]>;
+} | null> {
+    try {
+        console.log("Fetching replay data from API:", replayUrl);
+
+        // リプレイURLからAPIエンドポイントを構築
+        const replayId = replayUrl.split("/").pop();
+        if (!replayId) {
+            throw new Error("Invalid replay URL format");
+        }
+
+        const apiUrl = `${replayUrl}.json`;
+        console.log("API URL:", apiUrl);
+
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error(`API request failed with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Raw API response:", data);
+        console.log("API response keys:", Object.keys(data));
+        console.log("API response.format:", data.format);
+        console.log("API response.uploadtime:", data.uploadtime);
+        console.log("API response.p1:", data.p1);
+        console.log("API response.p2:", data.p2);
+
+        // Pokemon Showdown APIのレスポンス形式に基づいてデータを解析
+        const battleData = parsePokemonShowdownData(data);
+        console.log("Parsed battle data:", battleData);
+
+        // Pokemon Showdown APIの実際の構造に基づいて処理
+        const players = [];
+        if (data.p1) players.push(data.p1);
+        if (data.p2) players.push(data.p2);
+
+        // フォーマットはAPIから直接取得を優先
+        let format = "Unknown Format";
+        if (data.format && data.format.trim() !== "") {
+            format = data.format.trim();
+            console.log("Format from API root:", format);
+        } else if (battleData.format && battleData.format !== "Unknown Format") {
+            format = battleData.format;
+            console.log("Format from battle log:", format);
+        }
+
+        // 日時はuploadtimeから計算、手動登録と同じ形式（toDateString）を使用
+        let battleDate = new Date().toDateString();
+        if (data.uploadtime && typeof data.uploadtime === "number") {
+            battleDate = new Date(data.uploadtime * 1000).toDateString();
+            console.log("Battle date from uploadtime:", battleDate, "from timestamp:", data.uploadtime);
+        }
+        // バトル開始時刻を生成（手動登録と同じISO文字列形式）
+        let battleStartTime = battleData.battleStartTime;
+        if (!battleStartTime && data.uploadtime && typeof data.uploadtime === "number") {
+            battleStartTime = new Date(data.uploadtime * 1000).toISOString();
+            console.log("Battle start time from uploadtime:", battleStartTime);
+        } else if (!battleStartTime) {
+            battleStartTime = new Date().toISOString();
+            console.log("Battle start time set to current time:", battleStartTime);
+        }
+
+        const result = {
+            players: players.length > 0 ? players : battleData.players,
+            format: format,
+            battleLog: data.log || battleData.battleLog,
+            rating: data.rating || battleData.rating,
+            battleDate: battleDate,
+            teams: battleData.teams,
+            totalTurns: battleData.totalTurns,
+            battleStartTime: battleStartTime,
+            selectedPokemon: battleData.selectedPokemon,
+        };
+
+        console.log("API result format:", result.format);
+        console.log("API result battleDate:", result.battleDate);
+        console.log("API result battleStartTime:", result.battleStartTime);
+        console.log("API result players:", result.players);
+        console.log("API data.format:", data.format);
+        console.log("API data.uploadtime:", data.uploadtime);
+        return result;
+    } catch (error) {
+        console.error("Error fetching replay data from API:", error);
+        return null;
+    }
+}
+
+// Pokemon Showdownのバトルデータを解析する関数
+function parsePokemonShowdownData(data: { log?: string }): {
+    players: string[];
+    format: string;
+    battleLog: string;
+    teams: Record<string, string[]>;
+    selectedPokemon: Record<string, string[]>;
+    totalTurns: number;
+    battleStartTime: string | null;
+    rating?: number;
+} {
+    const battleLog = data.log || "";
+    const logLines = battleLog.split("\n");
+
+    const players: string[] = [];
+    const teams: Record<string, string[]> = {};
+    const selectedPokemon: Record<string, string[]> = {};
+    let format = "Unknown Format";
+    let totalTurns = 0;
+    let battleStartTime: string | null = null;
+    let rating: number | undefined = undefined;
+
+    // バトルログを解析
+    for (const line of logLines) {
+        const trimmedLine = line.trim();
+
+        // バトル開始時刻を抽出（手動登録と同じロジック）
+        if (trimmedLine.startsWith("|t:|") && battleStartTime === null) {
+            // タイムスタンプ行から時刻を抽出
+            const timestampMatch = trimmedLine.match(/\|t:(\d+)/);
+            if (timestampMatch) {
+                const timestamp = parseInt(timestampMatch[1], 10);
+                if (!isNaN(timestamp)) {
+                    battleStartTime = new Date(timestamp * 1000).toISOString();
+                    console.log(`Battle start time from |t:|: ${battleStartTime} (timestamp: ${timestamp})`);
+                }
+            }
+        }
+
+        // フォーマット情報
+        if (trimmedLine.startsWith("|format|")) {
+            const formatPart = trimmedLine.split("|")[2];
+            if (formatPart && formatPart.trim() !== "") {
+                format = formatPart.trim();
+                console.log("Format extracted from log:", format);
+            }
+        }
+
+        // プレイヤー情報
+        if (trimmedLine.startsWith("|player|")) {
+            const parts = trimmedLine.split("|");
+            if (parts.length >= 4) {
+                const playerName = parts[3];
+                if (playerName && !players.includes(playerName)) {
+                    players.push(playerName);
+                }
+            }
+        }
+
+        // チーム情報（poke コマンド）
+        if (trimmedLine.startsWith("|poke|")) {
+            const parts = trimmedLine.split("|");
+            if (parts.length >= 4) {
+                const playerPrefix = parts[2]; // p1a, p2a など
+                const pokemonInfo = parts[3];
+                const playerIndex = playerPrefix.includes("p1") ? 0 : 1;
+                const playerName = players[playerIndex];
+
+                if (playerName && pokemonInfo) {
+                    const pokemonName = pokemonInfo.split(",")[0];
+                    if (!teams[playerName]) teams[playerName] = [];
+                    if (!teams[playerName].includes(pokemonName)) {
+                        teams[playerName].push(pokemonName);
+                    }
+                }
+            }
+        }
+
+        // 選出情報（switch コマンド）
+        if (trimmedLine.startsWith("|switch|") || trimmedLine.startsWith("|drag|")) {
+            const parts = trimmedLine.split("|");
+            if (parts.length >= 4) {
+                const playerPrefix = parts[2]; // p1a, p2a など
+                const pokemonInfo = parts[3];
+                const playerIndex = playerPrefix.includes("p1") ? 0 : 1;
+                const playerName = players[playerIndex];
+
+                if (playerName && pokemonInfo) {
+                    const pokemonName = pokemonInfo.split(",")[0];
+                    if (!selectedPokemon[playerName]) selectedPokemon[playerName] = [];
+                    if (!selectedPokemon[playerName].includes(pokemonName)) {
+                        selectedPokemon[playerName].push(pokemonName);
+                    }
+                }
+            }
+        }
+
+        // ターン数
+        if (trimmedLine.startsWith("|turn|")) {
+            const parts = trimmedLine.split("|");
+            if (parts.length >= 3) {
+                const turnNum = parseInt(parts[2]) || 0;
+                totalTurns = Math.max(totalTurns, turnNum);
+                console.log("Turn found:", turnNum, "Total turns:", totalTurns);
+            }
+        }
+
+        // レーティング情報
+        if (trimmedLine.includes("rating") && trimmedLine.includes("→")) {
+            const ratingMatch = trimmedLine.match(/(\d+)\s*→\s*(\d+)/);
+            if (ratingMatch) {
+                rating = parseInt(ratingMatch[2]); // 更新後のレーティング
+            }
+        }
+    }
+
+    // バトル開始時刻が見つからない場合は現在時刻を使用
+    if (!battleStartTime) {
+        battleStartTime = new Date().toISOString();
+        console.log("Battle start time fallback to current time:", battleStartTime);
+    }
+
+    return {
+        players,
+        format,
+        battleLog,
+        teams,
+        selectedPokemon,
+        totalTurns,
+        battleStartTime,
+        rating,
+    };
+}
+
+// Pokemon Showdownからの自動リプレイ登録処理
+async function handleAutoRegisterReplay(
+    battleData: {
+        replayUrl?: string;
+        url?: string;
+        players?: string[];
+        rating?: number;
+        timestamp?: number;
+        format?: string;
+        totalTurns?: number;
+        battleStartTime?: string;
+    },
+    sendResponse: (response?: unknown) => void
+) {
+    try {
+        console.log("Auto-registering replay from Pokemon Showdown:", battleData);
+        console.log("Battle data keys:", Object.keys(battleData || {}));
+        console.log("Replay URL:", battleData?.replayUrl);
+
+        // 認証チェック（拡張機能のログインが必須）
+        const currentUser = await getCurrentUser();
+        console.log("Auto-registration: Current user check:", currentUser ? "authenticated" : "not authenticated");
+
+        if (!currentUser) {
+            console.error("Auto-registration: User not authenticated");
+            sendResponse({
+                success: false,
+                error: "自動登録を使用するにはログインが必要です。拡張機能のポップアップからログインしてください。",
+            });
+            return;
+        }
+
+        console.log("Auto-registration: User authenticated, proceeding with registration");
+
+        // リプレイURLを優先し、無い場合はurlを使用（ただし検証する）
+        let replayUrl = battleData.replayUrl || battleData.url || "";
+
+        // 対戦URLをリプレイURLに変換する処理
+        if (replayUrl.includes("play.pokemonshowdown.com/battle-")) {
+            const battleId = replayUrl.match(/\/battle-(.+)/)?.[1];
+            if (battleId) {
+                replayUrl = `https://replay.pokemonshowdown.com/${battleId}`;
+                console.log("Auto-registration: 対戦URLをリプレイURLに変換:", replayUrl);
+            }
+        }
+
+        // リプレイURLが正しい形式かチェック
+        if (!replayUrl || !replayUrl.includes("replay.pokemonshowdown.com")) {
+            console.error("Auto-registration: 無効なリプレイURL:", replayUrl);
+            console.error("Original battleData:", battleData);
+            sendResponse({
+                success: false,
+                error: "有効なリプレイURLが提供されていません。リプレイURLは https://replay.pokemonshowdown.com/ から始まる必要があります。",
+            });
+            return;
+        }
+
+        // Pokemon Showdown APIから詳細データを取得
+        console.log("Auto-registration: Fetching detailed data from Pokemon Showdown API...");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let apiData: any = null;
+        try {
+            apiData = await fetchReplayDataFromAPI(replayUrl);
+            if (apiData) {
+                console.log("Auto-registration: API data fetched successfully:", apiData);
+            } else {
+                console.warn("Auto-registration: Failed to fetch API data");
+            }
+        } catch (apiError) {
+            console.error("Auto-registration: API fetch error:", apiError);
+        }
+
+        // 基本データとAPIデータをマージしてReplayDataを作成
+        const timestamp = battleData.timestamp || Date.now();
+
+        // デバッグログ: データの詳細を確認
+        console.log("Auto-registration: battleData details:", {
+            format: battleData.format,
+            timestamp: battleData.timestamp,
+            players: battleData.players,
+        });
+        console.log("Auto-registration: apiData details:", {
+            format: apiData?.format,
+            battleDate: apiData?.battleDate,
+            players: apiData?.players,
+        });
+
+        const replayData: ReplayData = {
+            url: replayUrl,
+            players: apiData?.players || battleData.players || [],
+            rating: apiData?.rating || battleData.rating,
+            battleDate: apiData?.battleDate || new Date(timestamp).toISOString().split("T")[0],
+            format: apiData?.format || battleData.format || "Unknown Format",
+            teams: apiData?.teams || {},
+            selectedPokemon: apiData?.selectedPokemon || {},
+            battleLog: apiData?.battleLog || "",
+            timestamp: timestamp,
+            totalTurns: apiData?.totalTurns || battleData.totalTurns,
+            battleStartTime: apiData?.battleStartTime || battleData.battleStartTime,
+        };
+
+        console.log("Auto-registration: Final replay data:", replayData);
+        console.log("Auto-registration: Final format:", replayData.format);
+        console.log("Auto-registration: Final battleDate:", replayData.battleDate);
+
+        // 手動登録と同じ処理を使用
+        console.log("Auto-registration: Using handleSaveReplay for consistency");
+        await handleSaveReplay({ data: replayData }, sendResponse);
+    } catch (error) {
+        console.error("Error in auto-register replay:", error);
+        sendResponse({
+            success: false,
+            error: `自動登録エラー: ${error instanceof Error ? error.message : "不明なエラー"}`,
         });
     }
 }

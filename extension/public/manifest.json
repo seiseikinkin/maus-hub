@@ -17,7 +17,8 @@
         "https://identitytoolkit.googleapis.com/*",
         "https://securetoken.googleapis.com/*",
         "https://hayatosum.github.io/*",
-        "https://replay.pokemonshowdown.com/*"
+        "https://replay.pokemonshowdown.com/*",
+        "https://play.pokemonshowdown.com/*"
     ],
     "content_security_policy": {
         "extension_pages": "script-src 'self'; object-src 'self'"
@@ -38,6 +39,11 @@
         {
             "matches": ["https://pokepast.es/*"],
             "js": ["pokepaste-extractor.js"],
+            "run_at": "document_end"
+        },
+        {
+            "matches": ["https://play.pokemonshowdown.com/*"],
+            "js": ["replay-auto-register.js"],
             "run_at": "document_end"
         }
     ]

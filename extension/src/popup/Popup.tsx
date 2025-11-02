@@ -325,7 +325,7 @@ const Popup: React.FC = () => {
                     format: data.format || 'Unknown Format',
                     battleLog: battleLog,
                     rating: data.rating,
-                    battleDate: data.uploadtime ? new Date(data.uploadtime * 1000).toDateString() : undefined,
+                    battleDate: data.uploadtime ? new Date(data.uploadtime * 1000).toDateString() : new Date().toDateString(),
                     teams: battleData.teams,
                     selectedPokemon: battleData.selectedPokemon,
                     totalTurns: battleData.totalTurns,

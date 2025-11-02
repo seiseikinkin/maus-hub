@@ -373,7 +373,6 @@ export const ReplayList: React.FC = () => {
             <div className="replay-list-loading">
                 <div className="loading-spinner">
                     <div className="spinner"></div>
-                    <p>リプレイを読み込み中...</p>
                 </div>
             </div>
         );

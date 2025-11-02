@@ -22,7 +22,7 @@ service cloud.firestore {
     match /replays/{replayId} {
       allow read: if request.auth != null && request.auth.uid == resource.data.userId;
       allow write: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
     
     // その他のドキュメントは認証が必要（一時的に緩和）

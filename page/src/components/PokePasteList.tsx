@@ -120,7 +120,6 @@ export const PokePasteList: React.FC<PokePasteListProps> = ({
         return (
             <div className="pokepaste-list-loading">
                 <div className="loading-spinner"></div>
-                <p>PokePaste データを読み込み中...</p>
             </div>
         );
     }
