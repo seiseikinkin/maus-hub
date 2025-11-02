@@ -20,7 +20,6 @@ function App() {
 
 function AuthenticatedApp() {
   const { getUserUID } = useAuth()
-  const [showFilters, setShowFilters] = useState(false)
   const [activeTab, setActiveTab] = useState<'pokepaste' | 'replay' | 'analysis' | 'settings'>('pokepaste')
   
   // ログインユーザーのUIDを取得（自分のデータのみ表示）
