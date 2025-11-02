@@ -44,8 +44,8 @@ export class ReplayService {
                 dateB = b.timestamp;
             }
 
-            // 昇順（古い日付が上）
-            return dateA - dateB;
+            // 降順（新しい日付が上）
+            return dateB - dateA;
         });
     }
 
@@ -98,7 +98,7 @@ export class ReplayService {
         return selectedPokemon;
     }
 
-    // テスト用のダミーデータを生成
+    // テスト用のダミーデータを生成（新しいものから順に）
     private generateDummyData(userId: string): ReplayData[] {
         return [
             {
@@ -117,7 +117,7 @@ export class ReplayService {
                     TrainerBob: ["Charizard", "Venusaur", "Blastoise", "Pikachu"],
                 },
                 battleLog: "Sample battle log for replay 1...",
-                timestamp: Date.now() - 86400000, // 1日前
+                timestamp: Date.now() - 86400000, // 1日前（より新しい）
                 userId: userId,
                 createdAt: Date.now() - 86400000,
             },
@@ -137,7 +137,7 @@ export class ReplayService {
                     TrainerDave: ["Dialga", "Palkia", "Giratina", "Arceus"],
                 },
                 battleLog: "Sample battle log for replay 2...",
-                timestamp: Date.now() - 172800000, // 2日前
+                timestamp: Date.now() - 172800000, // 2日前（より古い）
                 userId: userId,
                 createdAt: Date.now() - 172800000,
             },
@@ -181,7 +181,7 @@ export class ReplayService {
                 });
             });
 
-            // クライアントサイドでバトル日付順にソート
+            // クライアントサイドでバトル日付順にソート（降順：新しいものが上）
             const sortedReplays = this.sortByBattleDate(replays);
 
             // データが空の場合、開発環境ではダミーデータを返す
@@ -215,7 +215,7 @@ export class ReplayService {
                 }
             });
 
-            // クライアントサイドでバトル日付順にソート
+            // クライアントサイドでバトル日付順にソート（降順：新しいものが上）
             const sortedReplays = this.sortByBattleDate(replays);
 
             return sortedReplays;
@@ -240,7 +240,7 @@ export class ReplayService {
                 });
             });
 
-            // クライアントサイドでバトル日付順にソート
+            // クライアントサイドでバトル日付順にソート（降順：新しいものが上）
             const sortedReplays = this.sortByBattleDate(replays);
 
             return sortedReplays;
@@ -269,7 +269,7 @@ export class ReplayService {
                 }
             });
 
-            // クライアントサイドでタイムスタンプ順にソート
+            // クライアントサイドでタイムスタンプ順にソート（降順：新しいものが上）
             replays.sort((a, b) => b.timestamp - a.timestamp);
 
             return replays;
