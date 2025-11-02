@@ -1,3 +1,10 @@
+/* ユニバーサルボックスサイジング */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 /* CSS変数 - ライトテーマ */
 :root {
     /* 背景色 */
@@ -104,8 +111,8 @@ body {
 
 /* アプリケーション全体のスタイル */
 .app {
-    max-width: 1400px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -269,11 +276,13 @@ body {
 /* メインコンテンツエリア */
 .main-content {
     width: 100%;
-    max-width: 1000px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 .content-wrapper {
@@ -360,14 +369,15 @@ body {
     overflow: hidden;
     border: 1px solid var(--border-primary);
     width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
+    box-sizing: border-box;
 }
 
 .pokepaste-list-header {
     background: var(--bg-tertiary);
     color: var(--text-primary);
-    padding: 1.5rem;
+    padding: 1rem 0.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -549,7 +559,147 @@ body {
     border-radius: 15px;
     font-size: 0.9rem;
     border: 1px solid var(--pokemon-border);
-} /* ローディングとエラー状態 */
+}
+
+/* PokePasteアイテム - 1行レイアウト */
+.pokepaste-item-single-line {
+    display: flex;
+    align-items: center;
+    padding: 0.7rem 1.4rem;
+    border-bottom: 1px solid var(--border-primary);
+    transition: background-color 0.2s;
+    background: var(--bg-card);
+    cursor: pointer;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.pokepaste-item-single-line:hover {
+    background: var(--bg-hover);
+}
+
+.pokepaste-item-single-line:last-child {
+    border-bottom: none;
+}
+
+/* タイトルセクション */
+.pokepaste-title-section {
+    flex: 2 1 180px;
+    min-width: 180px;
+    max-width: 350px;
+}
+
+.pokepaste-title-section .pokepaste-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+/* 作者セクション */
+.pokepaste-author-section {
+    flex: 0 0 150px;
+    min-width: 150px;
+}
+
+.pokepaste-author-section .pokepaste-author {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+/* ポケモンセクション */
+.pokepaste-pokemon-section {
+    flex: 4 1 200px;
+    min-width: 200px;
+}
+
+.pokepaste-pokemon-section .no-pokemon {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+/* 評価セクション */
+.pokepaste-rating-section {
+    flex: 0 0 100px;
+    min-width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 日時セクション */
+.pokepaste-date-section {
+    flex: 0 0 130px;
+    min-width: 130px;
+}
+
+.pokepaste-date-section .pokepaste-date {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+/* アクションセクション */
+.pokepaste-actions-section {
+    flex: 0 0 50px;
+    min-width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pokepaste-pokemon-row {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.pokepaste-pokemon-row .pokemon-item-inline {
+    position: relative;
+}
+
+.pokepaste-pokemon-row .pokemon-sprite-inline {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    transition: transform 0.2s ease;
+}
+
+.pokepaste-pokemon-row .pokemon-sprite-inline:hover {
+    transform: scale(1.1);
+    z-index: 10;
+    position: relative;
+}
+
+.pokepaste-pokemon-row .pokemon-name-text {
+    display: none;
+    position: absolute;
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 11;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 2px;
+}
+
+/* ローディングとエラー状態 */
 .pokepaste-list-loading {
     text-align: center;
     padding: 3rem;
@@ -2073,7 +2223,7 @@ body {
 .replay-item-single-line .all-pokemon-row {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.4rem;
     flex-wrap: wrap;
 }
 
@@ -2083,8 +2233,23 @@ body {
     align-items: center;
 }
 
+.replay-item-single-line .pokemon-section-selected {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+    min-width: calc(32px * 4 + 0.25rem * 3); /* 4匹分のスペースを確保 */
+}
+
+.replay-item-single-line .vs-divider-inline {
+    font-weight: bold;
+    color: var(--text-muted);
+    padding: 0 0.3rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+
 .replay-item-single-line .team-selected-divider {
-    width: 0rem;
+    width: 3rem;
     flex-shrink: 0;
 }
 
@@ -2099,18 +2264,18 @@ body {
 }
 
 .replay-item-single-line .pokemon-sprite-inline {
-    width: 36px;
-    height: 36px;
-    object-fit: contain;
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
     border-radius: 4px;
-    background: var(--pokemon-bg);
-    border: 1px solid var(--pokemon-border);
+    background: var(--bg-secondary);
     transition: transform 0.2s ease;
 }
 
 .replay-item-single-line .pokemon-sprite-inline:hover {
-    transform: scale(1.2);
+    transform: scale(1.1);
     z-index: 10;
+    position: relative;
 }
 
 .replay-item-single-line .delete-button {
@@ -2201,8 +2366,22 @@ body {
     }
 
     .replay-item-single-line .pokemon-sprite-inline {
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
+    }
+
+    .replay-item-single-line .pokemon-placeholder {
+        width: 24px;
+        height: 24px;
+    }
+
+    .replay-item-single-line .pokemon-section-selected {
+        min-width: calc(24px * 4 + 0.25rem * 3);
+    }
+
+    .replay-item-single-line .vs-divider-inline {
+        font-size: 0.6rem;
+        padding: 0 0.2rem;
     }
 
     .replay-item-single-line .delete-button {
@@ -2468,5 +2647,115 @@ body {
     .frequency-pokemon {
         width: 32px;
         height: 32px;
+    }
+
+    /* PokePaste 1行レイアウト レスポンシブ */
+    .pokepaste-item-single-line {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .pokepaste-title-section,
+    .pokepaste-author-section,
+    .pokepaste-pokemon-section,
+    .pokepaste-rating-section,
+    .pokepaste-date-section,
+    .pokepaste-actions-section {
+        flex: none;
+        min-width: unset;
+        width: 100%;
+    }
+
+    .pokepaste-rating-section {
+        justify-content: flex-start;
+    }
+
+    .pokepaste-title-section .pokepaste-title,
+    .pokepaste-author-section .pokepaste-author {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+    }
+
+    .pokepaste-pokemon-row .pokemon-sprite-inline {
+        width: 24px;
+        height: 24px;
+    }
+
+    .pokepaste-actions-section {
+        justify-content: flex-end;
+    }
+}
+
+/* 星評価コンポーネント */
+.star-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.star {
+    transition: color 0.2s ease, transform 0.1s ease;
+    user-select: none;
+}
+
+.star.small {
+    font-size: 0.8rem;
+}
+
+.star.medium {
+    font-size: 1rem;
+}
+
+.star.large {
+    font-size: 1.2rem;
+}
+
+.star.filled {
+    color: #ffd700;
+    text-shadow: 0 0 2px rgba(255, 215, 0, 0.5);
+}
+
+.star.empty {
+    color: var(--text-muted);
+}
+
+.star:not(.readonly):hover {
+    transform: scale(1.1);
+}
+
+.star-rating:not(.readonly) .star:hover {
+    color: #ffd700;
+    text-shadow: 0 0 2px rgba(255, 215, 0, 0.5);
+}
+
+/* 大画面用の最適化 */
+@media (min-width: 1400px) {
+    .pokepaste-title-section {
+        flex: 1 1 250px;
+        min-width: 250px;
+        max-width: 350px;
+    }
+
+    .pokepaste-author-section {
+        flex: 0 0 180px;
+        min-width: 180px;
+    }
+
+    .pokepaste-pokemon-section {
+        flex: 4 1 350px;
+        min-width: 350px;
+    }
+
+    .pokepaste-rating-section {
+        flex: 0 0 110px;
+        min-width: 110px;
+    }
+
+    .pokepaste-date-section {
+        flex: 0 0 150px;
+        min-width: 150px;
     }
 }

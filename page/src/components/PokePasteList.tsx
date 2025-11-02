@@ -71,6 +71,23 @@ export const PokePasteList: React.FC<PokePasteListProps> = ({
         }
     };
 
+    const handleRatingChange = async (id: string, rating: number) => {
+        try {
+            await pokePasteService.updatePokePasteRating(id, rating);
+            // ローカル状態を更新（リロードせずに即座に反映）
+            setPokepastes(prevPokepastes => 
+                prevPokepastes.map(pokepaste => 
+                    pokepaste.id === id 
+                        ? { ...pokepaste, rating } 
+                        : pokepaste
+                )
+            );
+        } catch (err) {
+            console.error('Error updating rating:', err);
+            alert('評価の更新に失敗しました');
+        }
+    };
+
     const getDateRange = (filter: string) => {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -172,6 +189,7 @@ export const PokePasteList: React.FC<PokePasteListProps> = ({
                             key={pokepaste.id} 
                             pokepaste={pokepaste}
                             onDelete={handleDelete}
+                            onRatingChange={handleRatingChange}
                         />
                     ))}
                 </div>

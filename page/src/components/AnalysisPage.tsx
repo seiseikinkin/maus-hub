@@ -124,6 +124,7 @@ const AnalysisPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [selectedFormat, setSelectedFormat] = useState<string>('all');
     const [availableFormats, setAvailableFormats] = useState<string[]>([]);
+    const [currentPlayerNames, setCurrentPlayerNames] = useState<string[]>([]);
 
     const [stats, setStats] = useState({
         totalReplays: 0,
@@ -155,10 +156,11 @@ const AnalysisPage: React.FC = () => {
                 replayService.getReplaysByUser(user.uid, 200)
             ]);
 
-            const currentPlayerNames = settingsService.getPlayerNames(userSettings);
+            const playerNames = settingsService.getPlayerNames(userSettings);
+            setCurrentPlayerNames(playerNames);
             
             // プレーヤー名が設定されていない場合は早期リターン
-            if (currentPlayerNames.length === 0) {
+            if (playerNames.length === 0) {
                 setRatingData([]);
                 setStats({
                     totalReplays: 0,
@@ -183,19 +185,19 @@ const AnalysisPage: React.FC = () => {
                     }
                     
                     // 自分のプレーヤー名がプレイヤーリストに含まれていること
-                    const hasPlayerName = currentPlayerNames.some(playerName => 
+                    const hasPlayerName = playerNames.some(playerName => 
                         replay.players.includes(playerName)
                     );
                     
                     return hasPlayerName;
                 })
                 .sort((a: ReplayData, b: ReplayData) => {
-                    // バトル日時で並び替え（古い順）
+                    // バトル日時で並び替え（新しい順）
                     if (a.battleDate && b.battleDate) {
-                        return new Date(a.battleDate).getTime() - new Date(b.battleDate).getTime();
+                        return new Date(b.battleDate).getTime() - new Date(a.battleDate).getTime();
                     }
-                    // バトル日時がない場合は作成日時で並び替え
-                    return a.createdAt - b.createdAt;
+                    // バトル日時がない場合は作成日時で並び替え（新しい順）
+                    return b.createdAt - a.createdAt;
                 });
 
             const ratingDataArray: RatingData[] = validReplays.map((replay: ReplayData) => {
@@ -206,7 +208,7 @@ const AnalysisPage: React.FC = () => {
                         : new Date(replay.createdAt);
                 
                 // 勝敗判定（バトルログから判定）
-                const winStatus = determineWinStatus(replay.battleLog, currentPlayerNames, replay.players);
+                const winStatus = determineWinStatus(replay.battleLog, playerNames, replay.players);
                 
                 return {
                     date: battleDateTime.toLocaleDateString('ja-JP'),
@@ -224,7 +226,7 @@ const AnalysisPage: React.FC = () => {
                     teams: replay.teams || {},
                     selectedPokemon: replay.selectedPokemon || {},
                     winStatus: winStatus,
-                    playerName: currentPlayerNames[0] || ''  // 表示用には最初の名前を使用
+                    playerName: playerNames[0] || ''  // 表示用には最初の名前を使用
                 };
             });
 
@@ -270,7 +272,7 @@ const AnalysisPage: React.FC = () => {
                     data.forEach(replay => {
                         // 相手のチーム（自分以外のプレイヤー）
                         const opponentPlayers = replay.players.filter(player => 
-                            !currentPlayerNames.includes(player)
+                            !playerNames.includes(player)
                         );
                         
                         opponentPlayers.forEach(opponent => {
@@ -309,13 +311,16 @@ const AnalysisPage: React.FC = () => {
         ? ratingData 
         : ratingData.filter(data => data.format === selectedFormat);
 
+    // グラフ用データ（時系列順：古いものから新しいものへ）
+    const chartRatingData = [...filteredRatingData].reverse();
+
     // グラフデータの生成
     const chartData = {
-        labels: filteredRatingData.map((_, index) => `第${index + 1}戦`),
+        labels: chartRatingData.map((_, index) => `第${index + 1}戦`),
         datasets: [
             {
                 label: 'レーティング',
-                data: filteredRatingData.map(data => data.rating),
+                data: chartRatingData.map(data => data.rating),
                 borderColor: 'rgb(75, 192, 192)',
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderWidth: 2,
@@ -346,12 +351,12 @@ const AnalysisPage: React.FC = () => {
                 callbacks: {
                     title: (tooltipItems: TooltipItem<'line'>[]) => {
                         const index = tooltipItems[0].dataIndex;
-                        const data = filteredRatingData[index];
+                        const data = chartRatingData[index];
                         return `${data.date} - ${data.format}`;
                     },
                     label: (tooltipItem: TooltipItem<'line'>) => {
                         const index = tooltipItem.dataIndex;
-                        const data = filteredRatingData[index];
+                        const data = chartRatingData[index];
                         return [
                             `レーティング: ${tooltipItem.parsed.y}`,
                             `プレイヤー: ${data.players.join(' vs ')}`
@@ -359,7 +364,7 @@ const AnalysisPage: React.FC = () => {
                     },
                     afterLabel: (tooltipItem: TooltipItem<'line'>) => {
                         const index = tooltipItem.dataIndex;
-                        const data = filteredRatingData[index];
+                        const data = chartRatingData[index];
                         return `リプレイ: ${data.replayUrl}`;
                     }
                 }
@@ -493,12 +498,16 @@ const AnalysisPage: React.FC = () => {
                     </thead>
                     <tbody>
                         {filteredRatingData.map((data, index) => {
-                            // プレイヤー名に基づいて自分と相手を判定
-                            const isPlayerFirst = data.playerName && data.players[0] === data.playerName;
-                            const myTeam = isPlayerFirst ? (data.teams[data.players[0]] || []) : (data.teams[data.players[1]] || []);
-                            const opponentTeam = isPlayerFirst ? (data.teams[data.players[1]] || []) : (data.teams[data.players[0]] || []);
-                            const mySelectedPokemon = isPlayerFirst ? (data.selectedPokemon[data.players[0]] || []) : (data.selectedPokemon[data.players[1]] || []);
-                            const opponentSelectedPokemon = isPlayerFirst ? (data.selectedPokemon[data.players[1]] || []) : (data.selectedPokemon[data.players[0]] || []);
+                            // 設定されたプレイヤー名に基づいて自分と相手を判定
+                            const myPlayerIndex = data.players.findIndex(player => 
+                                currentPlayerNames.includes(player)
+                            );
+                            const opponentPlayerIndex = myPlayerIndex === 0 ? 1 : 0;
+                            
+                            const myTeam = myPlayerIndex >= 0 ? (data.teams[data.players[myPlayerIndex]] || []) : [];
+                            const opponentTeam = data.players[opponentPlayerIndex] ? (data.teams[data.players[opponentPlayerIndex]] || []) : [];
+                            const mySelectedPokemon = myPlayerIndex >= 0 ? (data.selectedPokemon[data.players[myPlayerIndex]] || []) : [];
+                            const opponentSelectedPokemon = data.players[opponentPlayerIndex] ? (data.selectedPokemon[data.players[opponentPlayerIndex]] || []) : [];
 
                             return (
                                 <tr 

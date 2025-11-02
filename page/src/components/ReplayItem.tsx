@@ -128,7 +128,7 @@ export const ReplayItem: React.FC<ReplayItemProps> = ({ replay, onDelete, userPl
                 <div className="left-info">
                     {getWinLossDisplay()}
                     <span className="replay-players">
-                        {replay.players.join(' vs. ')}
+                        {getOrderedPlayers().join(' vs. ')}
                     </span>
                     <span className="replay-format">{replay.format}</span>
                     {replay.totalTurns && (
@@ -159,25 +159,30 @@ export const ReplayItem: React.FC<ReplayItemProps> = ({ replay, onDelete, userPl
             <div className="pokemon-info">
                 <div className="all-pokemon-row">
                     {/* チーム情報を順序調整して表示 */}
-                    {getOrderedPlayers().map((playerName) => {
+                    {getOrderedPlayers().map((playerName, playerIndex) => {
                         const pokemonList = replay.teams[playerName] || [];
                         return (
-                            <div key={`team-${playerName}`} className="pokemon-section">
-                                {pokemonList.map((pokemonName, index) => (
-                                    <div key={index} className="pokemon-item-inline">
-                                        <img
-                                            src={getPokemonImageUrl(pokemonName)}
-                                            alt={pokemonName}
-                                            className="pokemon-sprite-inline"
-                                            onError={handleImageError}
-                                            title={`${playerName}: ${pokemonName}`}
-                                        />
-                                        <span className="pokemon-name-text" style={{ display: 'none' }}>
-                                            🎮 {pokemonName}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
+                            <React.Fragment key={`team-${playerName}`}>
+                                <div className="pokemon-section">
+                                    {pokemonList.map((pokemonName, index) => (
+                                        <div key={index} className="pokemon-item-inline">
+                                            <img
+                                                src={getPokemonImageUrl(pokemonName)}
+                                                alt={pokemonName}
+                                                className="pokemon-sprite-inline"
+                                                onError={handleImageError}
+                                                title={`${playerName}: ${pokemonName}`}
+                                            />
+                                            <span className="pokemon-name-text" style={{ display: 'none' }}>
+                                                🎮 {pokemonName}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                                {playerIndex === 0 && getOrderedPlayers().length > 1 && (
+                                    <div className="vs-divider-inline">VS</div>
+                                )}
+                            </React.Fragment>
                         );
                     })}
                     
@@ -185,25 +190,34 @@ export const ReplayItem: React.FC<ReplayItemProps> = ({ replay, onDelete, userPl
                     <div className="team-selected-divider"></div>
                     
                     {/* 選出情報を順序調整して表示 */}
-                    {replay.selectedPokemon && getOrderedPlayers().map((playerName) => {
-                        const pokemonList = replay.selectedPokemon[playerName] || [];
-                        return pokemonList.length > 0 && (
-                            <div key={`selected-${playerName}`} className="pokemon-section">
-                                {pokemonList.map((pokemonName, index) => (
-                                    <div key={index} className="pokemon-item-inline">
-                                        <img
-                                            src={getPokemonImageUrl(pokemonName)}
-                                            alt={pokemonName}
-                                            className="pokemon-sprite-inline"
-                                            onError={handleImageError}
-                                            title={`${playerName} (選出): ${pokemonName}`}
-                                        />
-                                        <span className="pokemon-name-text" style={{ display: 'none' }}>
-                                            ⭐ {pokemonName}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
+                    {getOrderedPlayers().map((playerName, playerIndex) => {
+                        const pokemonList = replay.selectedPokemon?.[playerName] || [];
+                        return (
+                            <React.Fragment key={`selected-${playerName}`}>
+                                <div className="pokemon-section-selected">
+                                    {pokemonList.slice(0, 4).map((pokemonName, index) => (
+                                        <div key={index} className="pokemon-item-inline">
+                                            <img
+                                                src={getPokemonImageUrl(pokemonName)}
+                                                alt={pokemonName}
+                                                className="pokemon-sprite-inline selected-pokemon"
+                                                onError={handleImageError}
+                                                title={`${playerName} (選出): ${pokemonName}`}
+                                            />
+                                            <span className="pokemon-name-text" style={{ display: 'none' }}>
+                                                ⭐ {pokemonName}
+                                            </span>
+                                        </div>
+                                    ))}
+                                    {/* 空のスロットを埋める（選出は最大4匹） */}
+                                    {Array.from({ length: Math.max(0, 4 - pokemonList.length) }, (_, i) => (
+                                        <div key={`empty-${playerName}-${i}`} className="pokemon-placeholder"></div>
+                                    ))}
+                                </div>
+                                {playerIndex === 0 && getOrderedPlayers().length > 1 && (
+                                    <div className="vs-divider-inline">VS</div>
+                                )}
+                            </React.Fragment>
                         );
                     })}
                 </div>

@@ -1,12 +1,14 @@
 import React from 'react';
 import type { PokePasteData } from '../firebase/pokePasteService';
+import { StarRating } from './StarRating';
 
 interface PokePasteItemProps {
     pokepaste: PokePasteData;
     onDelete?: (id: string) => void;
+    onRatingChange?: (id: string, rating: number) => void;
 }
 
-export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste, onDelete }) => {
+export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste, onDelete, onRatingChange }) => {
     const formatDate = (timestamp: number) => {
         return new Date(timestamp).toLocaleString('ja-JP', {
             year: 'numeric',
@@ -25,6 +27,12 @@ export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste, onDelet
         e.stopPropagation();
         if (onDelete && window.confirm('このPokePasteを削除しますか？')) {
             onDelete(pokepaste.id);
+        }
+    };
+
+    const handleRatingChange = (rating: number) => {
+        if (onRatingChange) {
+            onRatingChange(pokepaste.id, rating);
         }
     };
 
@@ -50,54 +58,65 @@ export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste, onDelet
     };
 
     return (
-        <div className="pokepaste-item">
-            <div className="pokepaste-header">
-                <div className="pokepaste-title-section">
-                    <h3 className="pokepaste-title" onClick={handleOpenUrl}>
-                        {pokepaste.title || 'Untitled PokePaste'}
-                    </h3>
-                    {pokepaste.author && (
-                        <span className="pokepaste-author">
-                            by {pokepaste.author}
-                        </span>
-                    )}
-                </div>
-                <div className="pokepaste-actions">
-                    <span className="pokepaste-date">
-                        {formatDate(pokepaste.timestamp)}
-                    </span>
-                    {onDelete && (
-                        <button 
-                            className="delete-button"
-                            onClick={handleDelete}
-                            title="削除"
-                        >
-                            🗑️
-                        </button>
-                    )}
-                </div>
+        <div className="pokepaste-item-single-line" onClick={handleOpenUrl}>
+            <div className="pokepaste-title-section">
+                <span className="pokepaste-title">
+                    {pokepaste.title || 'Untitled PokePaste'}
+                </span>
             </div>
             
-            <div className="pokepaste-details">
-                {pokepaste.pokemonNames && pokepaste.pokemonNames.length > 0 && (
-                    <div className="pokemon-names">
-                        <div className="pokemon-list">
-                            {pokepaste.pokemonNames.map((name, index) => (
-                                <div key={index} className="pokemon-item">
-                                    <img
-                                        src={getPokemonImageUrl(name)}
-                                        alt={name}
-                                        className="pokemon-sprite"
-                                        onError={handleImageError}
-                                        title={name}
-                                    />
-                                    <span className="pokemon-name-text" style={{ display: 'none' }}>
-                                        🎮 {name}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
+            <div className="pokepaste-author-section">
+                <span className="pokepaste-author">
+                    {pokepaste.author ? `by ${pokepaste.author}` : '作者不明'}
+                </span>
+            </div>
+            
+            <div className="pokepaste-pokemon-section">
+                {pokepaste.pokemonNames && pokepaste.pokemonNames.length > 0 ? (
+                    <div className="pokepaste-pokemon-row">
+                        {pokepaste.pokemonNames.map((name, index) => (
+                            <div key={index} className="pokemon-item-inline">
+                                <img
+                                    src={getPokemonImageUrl(name)}
+                                    alt={name}
+                                    className="pokemon-sprite-inline"
+                                    onError={handleImageError}
+                                    title={name}
+                                />
+                                <span className="pokemon-name-text" style={{ display: 'none' }}>
+                                    🎮 {name}
+                                </span>
+                            </div>
+                        ))}
                     </div>
+                ) : (
+                    <span className="no-pokemon">ポケモンなし</span>
+                )}
+            </div>
+            
+            <div className="pokepaste-rating-section" onClick={(e) => e.stopPropagation()}>
+                <StarRating 
+                    rating={pokepaste.rating || 0}
+                    onRatingChange={handleRatingChange}
+                    size="small"
+                />
+            </div>
+            
+            <div className="pokepaste-date-section">
+                <span className="pokepaste-date">
+                    {formatDate(pokepaste.timestamp)}
+                </span>
+            </div>
+            
+            <div className="pokepaste-actions-section">
+                {onDelete && (
+                    <button 
+                        className="delete-button"
+                        onClick={handleDelete}
+                        title="削除"
+                    >
+                        🗑️
+                    </button>
                 )}
             </div>
         </div>

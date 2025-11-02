@@ -10,6 +10,7 @@ export interface PokePasteData {
     userId: string;
     author?: string;
     pokemonNames?: string[];
+    rating?: number; // 1-5の評価
 }
 
 // Firestore PokePasteサービス
@@ -25,6 +26,7 @@ export class PokePasteService {
                 userId: userId,
                 author: "TrainerAlice",
                 pokemonNames: ["Pikachu", "Charizard", "Blastoise"],
+                rating: 4,
             },
             {
                 id: "dummy-2",
@@ -34,6 +36,7 @@ export class PokePasteService {
                 userId: userId,
                 author: "TrainerBob",
                 pokemonNames: ["Venusaur", "Alakazam", "Machamp"],
+                rating: 3,
             },
         ];
     }
@@ -118,6 +121,19 @@ export class PokePasteService {
         } catch (error) {
             console.error("Error fetching pokepastes by date range:", error);
             throw new Error("Failed to fetch pokepastes by date range");
+        }
+    }
+
+    // PokePasteの評価を更新
+    async updatePokePasteRating(id: string, rating: number): Promise<void> {
+        try {
+            const { updateDoc, doc } = await import("firebase/firestore");
+            const docRef = doc(db, "pokepastes", id);
+            await updateDoc(docRef, { rating: rating });
+            console.log("Rating updated successfully:", id, rating);
+        } catch (error) {
+            console.error("Error updating rating:", error);
+            throw new Error("Failed to update rating");
         }
     }
 
