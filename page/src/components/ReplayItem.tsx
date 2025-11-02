@@ -124,47 +124,27 @@ export const ReplayItem: React.FC<ReplayItemProps> = ({ replay, onDelete, userPl
 
     return (
         <div className="replay-item-single-line" onClick={handleOpenUrl}>
-            <div className="main-info">
-                <div className="left-info">
-                    {getWinLossDisplay()}
-                    <span className="replay-players">
-                        {getOrderedPlayers().join(' vs. ')}
-                    </span>
-                    <span className="replay-format">{replay.format}</span>
-                    {replay.totalTurns && (
-                        <span className="replay-turns">Turns: {replay.totalTurns}</span>
-                    )}
-                    {replay.battleStartTime && (
-                        <span className="replay-battle-date">
-                            {new Date(replay.battleStartTime).toLocaleString('ja-JP')}
-                        </span>
-                    )}
-                </div>
-                <div className="right-info">
-                    {replay.rating && (
-                        <span className="replay-rating">Rating: {replay.rating}</span>
-                    )}
-                    {onDelete && (
-                        <button 
-                            className="delete-button"
-                            onClick={handleDelete}
-                            title="削除"
-                        >
-                            🗑️
-                        </button>
-                    )}
-                </div>
+            {/* 勝敗セクション */}
+            <div className="replay-status-section">
+                {getWinLossDisplay()}
             </div>
             
-            <div className="pokemon-info">
-                <div className="all-pokemon-row">
-                    {/* チーム情報を順序調整して表示 */}
+            {/* プレイヤーセクション */}
+            <div className="replay-players-section">
+                <span className="replay-players">
+                    {getOrderedPlayers().join(' vs. ')}
+                </span>
+            </div>
+            
+            {/* ポケモンセクション（チーム情報） */}
+            <div className="replay-pokemon-section">
+                <div className="replay-pokemon-row">
                     {getOrderedPlayers().map((playerName, playerIndex) => {
                         const pokemonList = replay.teams[playerName] || [];
                         return (
                             <React.Fragment key={`team-${playerName}`}>
-                                <div className="pokemon-section">
-                                    {pokemonList.map((pokemonName, index) => (
+                                <div className="pokemon-grid">
+                                    {pokemonList.slice(0, 6).map((pokemonName, index) => (
                                         <div key={index} className="pokemon-item-inline">
                                             <img
                                                 src={getPokemonImageUrl(pokemonName)}
@@ -185,16 +165,17 @@ export const ReplayItem: React.FC<ReplayItemProps> = ({ replay, onDelete, userPl
                             </React.Fragment>
                         );
                     })}
-                    
-                    {/* チームと選出の区切り */}
-                    <div className="team-selected-divider"></div>
-                    
-                    {/* 選出情報を順序調整して表示 */}
+                </div>
+            </div>
+            
+            {/* 選出セクション */}
+            <div className="replay-selection-section">
+                <div className="replay-selection-row">
                     {getOrderedPlayers().map((playerName, playerIndex) => {
                         const pokemonList = replay.selectedPokemon?.[playerName] || [];
                         return (
                             <React.Fragment key={`selected-${playerName}`}>
-                                <div className="pokemon-section-selected">
+                                <div className="pokemon-grid">
                                     {pokemonList.slice(0, 4).map((pokemonName, index) => (
                                         <div key={index} className="pokemon-item-inline">
                                             <img
@@ -221,6 +202,36 @@ export const ReplayItem: React.FC<ReplayItemProps> = ({ replay, onDelete, userPl
                         );
                     })}
                 </div>
+            </div>
+            
+            {/* 日時・レーティングセクション */}
+            <div className="replay-info-section">
+                {replay.battleStartTime && (
+                    <span className="replay-date">
+                        {new Date(replay.battleStartTime).toLocaleString('ja-JP', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}
+                    </span>
+                )}
+                {replay.rating && (
+                    <span className="replay-rating">Rating: {replay.rating}</span>
+                )}
+            </div>
+            
+            {/* アクションセクション */}
+            <div className="replay-actions-section">
+                {onDelete && (
+                    <button 
+                        className="delete-button"
+                        onClick={handleDelete}
+                        title="削除"
+                    >
+                        🗑️
+                    </button>
+                )}
             </div>
         </div>
     );

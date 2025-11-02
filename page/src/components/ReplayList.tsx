@@ -8,8 +8,6 @@ export const ReplayList: React.FC = () => {
     const [replays, setReplays] = useState<ReplayData[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [filterPlayer, setFilterPlayer] = useState('');
-    const [filterFormat, setFilterFormat] = useState('');
     const [showAddForm, setShowAddForm] = useState(false);
     const [urlInput, setUrlInput] = useState('');
     const [addingReplay, setAddingReplay] = useState(false);
@@ -40,16 +38,7 @@ export const ReplayList: React.FC = () => {
             setLoading(true);
             setError(null);
 
-            let fetchedReplays: ReplayData[];
-
-            if (filterPlayer) {
-                fetchedReplays = await replayService.getReplaysByPlayer(filterPlayer);
-            } else if (filterFormat) {
-                fetchedReplays = await replayService.getReplaysByFormat(filterFormat);
-            } else {
-                fetchedReplays = await replayService.getReplaysByUser(user.uid);
-            }
-
+            const fetchedReplays = await replayService.getReplaysByUser(user.uid);
             setReplays(fetchedReplays);
         } catch (err) {
             console.error('Error loading replays:', err);
@@ -57,7 +46,7 @@ export const ReplayList: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    }, [user, filterPlayer, filterFormat]);
+    }, [user]);
 
     useEffect(() => {
         loadReplays();
@@ -66,11 +55,6 @@ export const ReplayList: React.FC = () => {
 
     const handleRefresh = () => {
         loadReplays();
-    };
-
-    const clearFilters = () => {
-        setFilterPlayer('');
-        setFilterFormat('');
     };
 
     const handleDelete = async (id: string) => {
@@ -395,7 +379,7 @@ export const ReplayList: React.FC = () => {
     return (
         <div className="replay-list">
             <div className="replay-list-header">
-                <h2>保存されたリプレイ</h2>
+                <h2></h2>
                 <div className="controls">
                     <button 
                         onClick={() => setShowAddForm(!showAddForm)} 
@@ -404,7 +388,7 @@ export const ReplayList: React.FC = () => {
                         📝 URLから追加
                     </button>
                     <button onClick={handleRefresh} className="refresh-button">
-                        🔄 更新
+                        🔄
                     </button>
                 </div>
             </div>
@@ -454,35 +438,6 @@ export const ReplayList: React.FC = () => {
                     </div>
                 </div>
             )}
-
-            {/* フィルターセクション */}
-            <div className="filters-section">
-                <div className="filter-input-group">
-                    <label>プレイヤー名でフィルター:</label>
-                    <input
-                        type="text"
-                        value={filterPlayer}
-                        onChange={(e) => setFilterPlayer(e.target.value)}
-                        placeholder="プレイヤー名を入力..."
-                        className="textbox"
-                    />
-                </div>
-                <div className="filter-input-group">
-                    <label>フォーマットでフィルター:</label>
-                    <input
-                        type="text"
-                        value={filterFormat}
-                        onChange={(e) => setFilterFormat(e.target.value)}
-                        placeholder="フォーマット名を入力..."
-                        className="textbox"
-                    />
-                </div>
-                {(filterPlayer || filterFormat) && (
-                    <button onClick={clearFilters} className="clear-filter-button">
-                        フィルターをクリア
-                    </button>
-                )}
-            </div>
 
             <div className="replay-count">
                 {replays.length} 件のリプレイ

@@ -25,7 +25,7 @@ export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste, onDelet
 
     const handleDelete = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (onDelete && window.confirm('このPokePasteを削除しますか？')) {
+        if (onDelete && window.confirm('削除しますか？')) {
             onDelete(pokepaste.id);
         }
     };
@@ -33,6 +33,40 @@ export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste, onDelet
     const handleRatingChange = (rating: number) => {
         if (onRatingChange) {
             onRatingChange(pokepaste.id, rating);
+        }
+    };
+
+    const handleCopyLink = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        try {
+            await navigator.clipboard.writeText(pokepaste.url);
+            // 一時的にボタンテキストを変更してコピー完了を示す
+            const button = e.target as HTMLButtonElement;
+            const originalText = button.textContent;
+            button.textContent = '✅';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 1000);
+        } catch (err) {
+            console.error('Failed to copy link:', err);
+            // フォールバック: 古いブラウザ用
+            const textArea = document.createElement('textarea');
+            textArea.value = pokepaste.url;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                const button = e.target as HTMLButtonElement;
+                const originalText = button.textContent;
+                button.textContent = '✅';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 1000);
+            } catch (fallbackErr) {
+                console.error('Fallback copy failed:', fallbackErr);
+                alert('リンクのコピーに失敗しました');
+            }
+            document.body.removeChild(textArea);
         }
     };
 
@@ -109,6 +143,13 @@ export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste, onDelet
             </div>
             
             <div className="pokepaste-actions-section">
+                <button 
+                    className="copy-link-button"
+                    onClick={handleCopyLink}
+                    title="リンクをコピー"
+                >
+                    🔗
+                </button>
                 {onDelete && (
                     <button 
                         className="delete-button"

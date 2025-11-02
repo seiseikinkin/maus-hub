@@ -13,9 +13,11 @@ export const PokePasteList: React.FC<PokePasteListProps> = ({
     maxItems = 50 
 }) => {
     const [pokepastes, setPokepastes] = useState<PokePasteData[]>([]);
+    const [filteredPokepastes, setFilteredPokepastes] = useState<PokePasteData[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [dateFilter, setDateFilter] = useState<string>('all');
+    const [pokemonFilter, setPokemonFilter] = useState<string>('');
+    const [ratingFilter, setRatingFilter] = useState<string>('all');
 
     const loadPokePastes = React.useCallback(async () => {
         try {
@@ -25,18 +27,14 @@ export const PokePasteList: React.FC<PokePasteListProps> = ({
             let data: PokePasteData[] = [];
             
             if (filterUserId) {
-                if (dateFilter === 'all') {
-                    data = await pokePasteService.getPokePastesByUser(filterUserId, maxItems);
-                } else {
-                    const { start, end } = getDateRange(dateFilter);
-                    data = await pokePasteService.getPokePastesByDateRange(filterUserId, start, end);
-                }
+                data = await pokePasteService.getPokePastesByUser(filterUserId, maxItems);
             } else {
                 // filterUserIdが指定されていない場合は全ユーザーのデータを取得
                 data = await pokePasteService.getAllPokePastes(maxItems);
             }
             
             setPokepastes(data);
+            setFilteredPokepastes(data);
         } catch (err) {
             console.error('Error loading pokepastes:', err);
             let errorMessage = 'Unknown error occurred';
@@ -58,7 +56,50 @@ export const PokePasteList: React.FC<PokePasteListProps> = ({
         } finally {
             setLoading(false);
         }
-    }, [filterUserId, maxItems, dateFilter]);
+    }, [filterUserId, maxItems]);
+
+    // フィルター処理
+    const applyFilters = React.useCallback(() => {
+        let filtered = pokepastes;
+
+        // ポケモン名フィルター（カンマ区切りでAND条件、部分一致）
+        if (pokemonFilter.trim()) {
+            const pokemonNames = pokemonFilter
+                .split(',')
+                .map(name => name.trim().toLowerCase())
+                .filter(name => name.length > 0);
+            
+            if (pokemonNames.length > 0) {
+                filtered = filtered.filter(pokepaste => {
+                    if (!pokepaste.pokemonNames || pokepaste.pokemonNames.length === 0) {
+                        return false;
+                    }
+                    
+                    // すべてのポケモン名が含まれているかチェック（AND条件）
+                    return pokemonNames.every(filterName =>
+                        pokepaste.pokemonNames!.some(pokemonName =>
+                            pokemonName.toLowerCase().includes(filterName)
+                        )
+                    );
+                });
+            }
+        }
+
+        // 評価フィルター（0-5の具体的な値）
+        if (ratingFilter !== 'all') {
+            const targetRating = parseInt(ratingFilter);
+            filtered = filtered.filter(pokepaste => 
+                (pokepaste.rating || 0) === targetRating
+            );
+        }
+
+        setFilteredPokepastes(filtered);
+    }, [pokepastes, pokemonFilter, ratingFilter]);
+
+    // フィルターが変更されたときに実行
+    useEffect(() => {
+        applyFilters();
+    }, [applyFilters]);
 
     const handleDelete = async (id: string) => {
         try {
@@ -88,49 +129,12 @@ export const PokePasteList: React.FC<PokePasteListProps> = ({
         }
     };
 
-    const getDateRange = (filter: string) => {
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        
-        switch (filter) {
-            case 'today':
-                return {
-                    start: today.getTime(),
-                    end: today.getTime() + 24 * 60 * 60 * 1000 - 1
-                };
-            case 'week': {
-                const weekStart = new Date(today);
-                weekStart.setDate(today.getDate() - today.getDay());
-                return {
-                    start: weekStart.getTime(),
-                    end: now.getTime()
-                };
-            }
-            case 'month': {
-                const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-                return {
-                    start: monthStart.getTime(),
-                    end: now.getTime()
-                };
-            }
-            default:
-                return {
-                    start: 0,
-                    end: now.getTime()
-                };
-        }
-    };
-
     useEffect(() => {
         loadPokePastes();
     }, [loadPokePastes]);
 
     const handleRefresh = () => {
         loadPokePastes();
-    };
-
-    const handleDateFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setDateFilter(event.target.value);
     };
 
     if (loading) {
@@ -156,35 +160,56 @@ export const PokePasteList: React.FC<PokePasteListProps> = ({
     return (
         <div className="pokepaste-list">
             <div className="pokepaste-list-header">
-                <h2>PokePaste 一覧</h2>
-                <div className="controls">
-                    <select 
-                        value={dateFilter} 
-                        onChange={handleDateFilterChange}
-                        className="date-filter"
-                    >
-                        <option value="all">すべて</option>
-                        <option value="today">今日</option>
-                        <option value="week">今週</option>
-                        <option value="month">今月</option>
-                    </select>
-                    <button onClick={handleRefresh} className="refresh-button">
-                        🔄 更新
-                    </button>
+                <div className="filter-section">
+                    <div className="filter-row">
+                        <input
+                            type="text"
+                            placeholder="ポケモン名で検索（カンマ区切りでAND条件）..."
+                            value={pokemonFilter}
+                            onChange={(e) => setPokemonFilter(e.target.value)}
+                            className="pokemon-filter"
+                        />
+                        <select
+                            value={ratingFilter}
+                            onChange={(e) => setRatingFilter(e.target.value)}
+                            className="rating-filter"
+                        >
+                            <option value="all">すべての評価</option>
+                            <option value="0">☆☆☆☆☆ (0星)</option>
+                            <option value="1">★☆☆☆☆ (1星)</option>
+                            <option value="2">★★☆☆☆ (2星)</option>
+                            <option value="3">★★★☆☆ (3星)</option>
+                            <option value="4">★★★★☆ (4星)</option>
+                            <option value="5">★★★★★ (5星)</option>
+                        </select>
+                        <button 
+                            onClick={() => {
+                                setPokemonFilter('');
+                                setRatingFilter('all');
+                            }}
+                            className="clear-filters-button"
+                            title="フィルターをクリア"
+                        >
+                            クリア
+                        </button>
+                        <button onClick={handleRefresh} className="refresh-button">
+                            🔄
+                        </button>
+                    </div>
                 </div>
             </div>
             
-            <div className="pokepaste-count">
-                {pokepastes.length} 件の PokePaste が見つかりました
-            </div>
-            
-            {pokepastes.length === 0 ? (
+            {filteredPokepastes.length === 0 ? (
                 <div className="no-pokepastes">
-                    <p>PokePaste が見つかりませんでした。</p>
+                    {pokepastes.length === 0 ? (
+                        <p>PokePaste が見つかりませんでした。</p>
+                    ) : (
+                        <p>フィルター条件に合う PokePaste が見つかりませんでした。</p>
+                    )}
                 </div>
             ) : (
                 <div className="pokepaste-items">
-                    {pokepastes.map((pokepaste) => (
+                    {filteredPokepastes.map((pokepaste) => (
                         <PokePasteItem 
                             key={pokepaste.id} 
                             pokepaste={pokepaste}

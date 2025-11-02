@@ -128,10 +128,7 @@ const AnalysisPage: React.FC = () => {
 
     const [stats, setStats] = useState({
         totalReplays: 0,
-        averageRating: 0,
         highestRating: 0,
-        lowestRating: 0,
-        ratingChange: 0,
         winRate: 0,
         wins: 0,
         losses: 0
@@ -164,10 +161,7 @@ const AnalysisPage: React.FC = () => {
                 setRatingData([]);
                 setStats({
                     totalReplays: 0,
-                    averageRating: 0,
                     highestRating: 0,
-                    lowestRating: 0,
-                    ratingChange: 0,
                     winRate: 0,
                     wins: 0,
                     losses: 0
@@ -240,10 +234,7 @@ const AnalysisPage: React.FC = () => {
             if (ratingDataArray.length > 0) {
                 const ratings = ratingDataArray.map(data => data.rating);
                 const total = ratingDataArray.length;
-                const average = ratings.reduce((sum, rating) => sum + rating, 0) / total;
                 const highest = Math.max(...ratings);
-                const lowest = Math.min(...ratings);
-                const ratingChange = ratings[ratings.length - 1] - ratings[0];
 
                 // 勝敗数を計算
                 const wins = ratingDataArray.filter(data => data.winStatus === 'win').length;
@@ -252,10 +243,7 @@ const AnalysisPage: React.FC = () => {
 
                 setStats({
                     totalReplays: total,
-                    averageRating: Math.round(average),
                     highestRating: highest,
-                    lowestRating: lowest,
-                    ratingChange: ratingChange,
                     winRate: winRate,
                     wins: wins,
                     losses: losses
@@ -445,30 +433,12 @@ const AnalysisPage: React.FC = () => {
 
             <div className="stats-overview">
                 <div className="stat-card">
-                    <h3>総バトル数</h3>
-                    <div className="stat-value">{stats.totalReplays}</div>
-                </div>
-                <div className="stat-card">
-                    <h3>平均レーティング</h3>
-                    <div className="stat-value">{stats.averageRating}</div>
-                </div>
-                <div className="stat-card">
                     <h3>最高レーティング</h3>
                     <div className="stat-value">{stats.highestRating}</div>
                 </div>
                 <div className="stat-card">
-                    <h3>最低レーティング</h3>
-                    <div className="stat-value">{stats.lowestRating}</div>
-                </div>
-                <div className="stat-card">
-                    <h3>レーティング変化</h3>
-                    <div className={`stat-value ${stats.ratingChange >= 0 ? 'positive' : 'negative'}`}>
-                        {stats.ratingChange >= 0 ? '+' : ''}{stats.ratingChange}
-                    </div>
-                </div>
-                <div className="stat-card">
-                    <h3>勝率</h3>
-                    <div className="stat-value">{stats.winRate}%</div>
+                    <h3>対戦数</h3>
+                    <div className="stat-value">{stats.totalReplays}</div>
                 </div>
                 <div className="stat-card">
                     <h3>勝利数</h3>
@@ -477,6 +447,10 @@ const AnalysisPage: React.FC = () => {
                 <div className="stat-card">
                     <h3>敗北数</h3>
                     <div className="stat-value negative">{stats.losses}</div>
+                </div>
+                <div className="stat-card">
+                    <h3>勝率</h3>
+                    <div className="stat-value">{stats.winRate}%</div>
                 </div>
             </div>
 
