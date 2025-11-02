@@ -29,68 +29,45 @@ function AuthenticatedApp() {
   return (
     <div className="app">
       <header className="app-header">
-        <div className="header-content">
-          <div className="header-text">
-            <div className="header-logo">
-              <img src={mausIcon} alt="Maus Hub" className="header-icon" />
-              <h1>Maus Hub</h1>
-            </div>
+        <div className="header-content-single-row">
+          <div className="header-logo">
+            <img src={mausIcon} alt="Maus Hub" className="header-icon" />
+            <h1>Maus Hub</h1>
           </div>
+          
+          <div className="tab-navigation">
+            <button 
+              className={`tab-button ${activeTab === 'pokepaste' ? 'active' : ''}`}
+              onClick={() => setActiveTab('pokepaste')}
+            >
+              📝 PokePaste
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'replay' ? 'active' : ''}`}
+              onClick={() => setActiveTab('replay')}
+            >
+              🎬 リプレイ
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'analysis' ? 'active' : ''}`}
+              onClick={() => setActiveTab('analysis')}
+            >
+              📊 分析
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
+              onClick={() => setActiveTab('settings')}
+            >
+              ⚙️ 設定
+            </button>
+          </div>
+          
           <div className="header-controls">
             <ThemeToggle />
             <UserProfile />
           </div>
         </div>
       </header>
-
-      <div className="tab-navigation">
-        <button 
-          className={`tab-button ${activeTab === 'pokepaste' ? 'active' : ''}`}
-          onClick={() => setActiveTab('pokepaste')}
-        >
-          📝 PokePaste
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'replay' ? 'active' : ''}`}
-          onClick={() => setActiveTab('replay')}
-        >
-          🎬 リプレイ
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'analysis' ? 'active' : ''}`}
-          onClick={() => setActiveTab('analysis')}
-        >
-          📊 分析
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
-          onClick={() => setActiveTab('settings')}
-        >
-          ⚙️ 設定
-        </button>
-      </div>
-
-      <div className="filters-section">
-        <button 
-          onClick={() => setShowFilters(!showFilters)}
-          className="toggle-filters-button"
-        >
-          {showFilters ? '🔽 フィルター を隠す' : '🔼 フィルター を表示'}
-        </button>
-        
-        {showFilters && (
-          <div className="filters">
-            <div className="filter-info">
-              <p>📝 あなたが保存した{
-                activeTab === 'pokepaste' ? 'PokePaste' : 
-                activeTab === 'replay' ? 'リプレイ' : 
-                activeTab === 'analysis' ? 'リプレイの分析データ' : 
-                '設定'
-              }のみが表示されます</p>
-            </div>
-          </div>
-        )}
-      </div>
 
       <main className="app-main">
         {activeTab === 'pokepaste' ? (
@@ -107,9 +84,6 @@ function AuthenticatedApp() {
         )}
       </main>
 
-      <footer className="app-footer">
-        <p>© 2024 Maus Hub</p>
-      </footer>
     </div>
   )
 }
