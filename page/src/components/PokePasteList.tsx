@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { PokePasteItem } from './PokePasteItem';
+import { ImportExportModal } from './ImportExportModal';
 import { pokePasteService } from '../firebase/pokePasteService';
+import { useAuth } from '../contexts/AuthContext';
 import type { PokePasteData } from '../firebase/pokePasteService';
 
 interface PokePasteListProps {
@@ -12,12 +14,14 @@ export const PokePasteList: React.FC<PokePasteListProps> = ({
     filterUserId, 
     maxItems = 50 
 }) => {
+    const { getUserUID } = useAuth();
     const [pokepastes, setPokepastes] = useState<PokePasteData[]>([]);
     const [filteredPokepastes, setFilteredPokepastes] = useState<PokePasteData[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [pokemonFilter, setPokemonFilter] = useState<string>('');
     const [ratingFilter, setRatingFilter] = useState<string>('all');
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
     const loadPokePastes = React.useCallback(async () => {
         try {
@@ -137,6 +141,61 @@ export const PokePasteList: React.FC<PokePasteListProps> = ({
         loadPokePastes();
     };
 
+    // インポート処理
+    const handleImport = async (urls: string[]) => {
+        const userId = getUserUID();
+        if (!userId) {
+            throw new Error('ユーザーが認証されていません');
+        }
+
+        const result = await pokePasteService.importPokePastes(urls, userId);
+        
+        // インポート成功時にリストを再読み込み
+        if (result.success > 0) {
+            await loadPokePastes();
+        }
+
+        return result;
+    };
+
+    // エクスポート処理
+    const handleExport = async () => {
+        try {
+            const urlsToExport = filteredPokepastes.map(pokepaste => pokepaste.url);
+            const exportText = urlsToExport.join('\n');
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                // モダンブラウザの場合
+                await navigator.clipboard.writeText(exportText);
+                alert(`${urlsToExport.length}件のURLをクリップボードにコピーしました。`);
+            } else {
+                // フォールバック: テキストエリアを使用
+                const textArea = document.createElement('textarea');
+                textArea.value = exportText;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    alert(`${urlsToExport.length}件のURLをクリップボードにコピーしました。`);
+                } catch (err) {
+                    console.error('Copy to clipboard failed:', err);
+                    // 最後の手段として、テキストを表示
+                    prompt('以下のURLをコピーしてください:', exportText);
+                } finally {
+                    document.body.removeChild(textArea);
+                }
+            }
+        } catch (error) {
+            console.error('Export error:', error);
+            alert('エクスポート中にエラーが発生しました。');
+        }
+    };
+
     if (loading) {
         return (
             <div className="pokepaste-list-loading">
@@ -192,6 +251,21 @@ export const PokePasteList: React.FC<PokePasteListProps> = ({
                         >
                             クリア
                         </button>
+                        <button 
+                            onClick={() => setIsImportModalOpen(true)}
+                            className="import-button"
+                            title="PokePasteをインポート"
+                        >
+                            インポート
+                        </button>
+                        <button 
+                            onClick={handleExport}
+                            className="export-button"
+                            disabled={filteredPokepastes.length === 0}
+                            title="表示中のPokePasteをエクスポート"
+                        >
+                            エクスポート ({filteredPokepastes.length})
+                        </button>
                         <button onClick={handleRefresh} className="refresh-button">
                             🔄
                         </button>
@@ -219,6 +293,12 @@ export const PokePasteList: React.FC<PokePasteListProps> = ({
                     ))}
                 </div>
             )}
+
+            <ImportExportModal
+                isOpen={isImportModalOpen}
+                onClose={() => setIsImportModalOpen(false)}
+                onImport={handleImport}
+            />
         </div>
     );
 };

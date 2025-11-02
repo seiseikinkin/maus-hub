@@ -30,6 +30,8 @@
     --accent-green-hover: #219a52;
     --accent-red: #e74c3c;
     --accent-red-hover: #c0392b;
+    --accent-blue: #3b82f6;
+    --accent-blue-hover: #2563eb;
 
     /* 特殊色 */
     --pokemon-bg: #e8f5e8;
@@ -66,6 +68,8 @@
     --accent-green-hover: #27ae60;
     --accent-red: #e74c3c;
     --accent-red-hover: #c0392b;
+    --accent-blue: #60a5fa;
+    --accent-blue-hover: #3b82f6;
 
     /* 特殊色 */
     --pokemon-bg: #2d4a2d;
@@ -323,6 +327,46 @@ body {
     flex-wrap: nowrap;
 }
 
+/* インポート・エクスポートボタン（filter-row内に統合） */
+.import-button,
+.export-button {
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.import-button:hover {
+    background: var(--accent-blue-hover);
+    transform: translateY(-1px);
+}
+
+.export-button {
+    background: var(--accent-green);
+}
+
+.export-button:hover:not(:disabled) {
+    background: var(--accent-green-hover);
+    transform: translateY(-1px);
+}
+
+.export-button:disabled {
+    background: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+}
+
 .pokemon-filter {
     flex: 2;
     min-width: 300px;
@@ -366,6 +410,7 @@ body {
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.9rem;
+    font-weight: 500;
     transition: all 0.2s ease;
     opacity: 0.8;
     flex-shrink: 0;
@@ -393,13 +438,63 @@ body {
     .pokemon-filter {
         flex: 1 1 100%;
         min-width: unset;
+        order: 1;
     }
 
-    .rating-filter,
+    .rating-filter {
+        flex: 1 1 auto;
+        min-width: 120px;
+        order: 2;
+    }
+
     .clear-filters-button,
+    .import-button,
+    .export-button,
     .refresh-button {
         flex: 1 1 auto;
-        min-width: 100px;
+        min-width: 80px;
+        padding: 0.5rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .clear-filters-button {
+        order: 3;
+    }
+
+    .import-button {
+        order: 4;
+    }
+
+    .export-button {
+        order: 5;
+    }
+
+    .refresh-button {
+        order: 6;
+    }
+}
+
+/* より小さな画面用の追加対応 */
+@media (max-width: 480px) {
+    .filter-row {
+        gap: 0.3rem;
+    }
+
+    .import-button,
+    .export-button {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+        gap: 0.2rem;
+    }
+
+    .clear-filters-button,
+    .refresh-button {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+    }
+
+    .rating-filter {
+        font-size: 0.8rem;
     }
 }
 
@@ -422,6 +517,7 @@ body {
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.9rem;
+    font-weight: 500;
     transition: all 0.2s ease;
     flex-shrink: 0;
 }

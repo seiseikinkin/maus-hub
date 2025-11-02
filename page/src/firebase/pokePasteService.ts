@@ -148,6 +148,59 @@ export class PokePasteService {
             throw new Error("Failed to delete PokePaste");
         }
     }
+
+    // PokePasteを手動でインポート
+    async importPokePastes(urls: string[], userId: string): Promise<{ success: number; failed: number; errors: string[] }> {
+        const { addDoc, collection } = await import("firebase/firestore");
+        let success = 0;
+        let failed = 0;
+        const errors: string[] = [];
+
+        for (const url of urls) {
+            try {
+                const trimmedUrl = url.trim();
+                if (!trimmedUrl) continue;
+
+                // URLの妥当性チェック
+                if (!trimmedUrl.includes("pokepast.es")) {
+                    errors.push(`無効なURL: ${trimmedUrl} (pokepast.esのURLではありません)`);
+                    failed++;
+                    continue;
+                }
+
+                // 重複チェック
+                const duplicateQuery = query(collection(db, "pokepastes"), where("url", "==", trimmedUrl), where("userId", "==", userId));
+                const duplicateSnapshot = await getDocs(duplicateQuery);
+
+                if (!duplicateSnapshot.empty) {
+                    errors.push(`重複URL: ${trimmedUrl} (既に登録済み)`);
+                    failed++;
+                    continue;
+                }
+
+                // PokePasteデータを作成
+                const newPokePaste = {
+                    url: trimmedUrl,
+                    title: `Manual Import - ${new Date().toLocaleString()}`,
+                    timestamp: Date.now(),
+                    userId: userId,
+                    author: undefined,
+                    pokemonNames: [],
+                    rating: 0,
+                };
+
+                // Firestoreに保存
+                await addDoc(collection(db, "pokepastes"), newPokePaste);
+                success++;
+            } catch (error) {
+                console.error("Error importing PokePaste:", error);
+                errors.push(`エラー: ${url} - ${error instanceof Error ? error.message : "不明なエラー"}`);
+                failed++;
+            }
+        }
+
+        return { success, failed, errors };
+    }
 }
 
 export const pokePasteService = new PokePasteService();

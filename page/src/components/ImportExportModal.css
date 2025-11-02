@@ -1,0 +1,253 @@
+/* ImportExportModal.css */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalAppear 0.2s ease-out;
+}
+
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.modal-close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 4px;
+    line-height: 1;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.modal-close-button:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.import-section {
+    margin-bottom: 24px;
+}
+
+.import-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #374151;
+    font-size: 14px;
+}
+
+.import-section textarea {
+    width: 100%;
+    min-height: 160px;
+    padding: 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: vertical;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.import-section textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.import-section textarea:disabled {
+    background-color: #f9fafb;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+.import-result {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.import-result h4 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.result-summary {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.success-count {
+    color: #059669;
+    font-weight: 500;
+    padding: 4px 8px;
+    background: #d1fae5;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.failed-count {
+    color: #dc2626;
+    font-weight: 500;
+    padding: 4px 8px;
+    background: #fee2e2;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.error-list {
+    margin-top: 12px;
+}
+
+.error-list h5 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #dc2626;
+}
+
+.error-list ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.error-item {
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: #dc2626;
+    line-height: 1.4;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px 24px 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.import-button {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 14px;
+}
+
+.import-button:hover:not(:disabled) {
+    background: #2563eb;
+}
+
+.import-button:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+.cancel-button {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    font-size: 14px;
+}
+
+.cancel-button:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 640px) {
+    .modal-overlay {
+        padding: 10px;
+    }
+
+    .modal-content {
+        max-height: 95vh;
+    }
+
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .modal-footer {
+        flex-direction: column-reverse;
+    }
+
+    .import-button,
+    .cancel-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .result-summary {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
