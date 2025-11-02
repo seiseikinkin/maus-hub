@@ -6,55 +6,72 @@
         <title>Chrome拡張認証</title>
         <style>
             body {
-                font-family: Arial, sans-serif;
-                max-width: 400px;
-                margin: 50px auto;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                max-width: 320px;
+                margin: 80px auto;
                 padding: 20px;
                 text-align: center;
+                background: #ffffff;
+                color: #333;
             }
-            .auth-container {
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                padding: 30px;
-                background: #f9f9f9;
+            h2 {
+                font-size: 24px;
+                font-weight: 600;
+                margin: 0 0 16px 0;
+                color: #1a1a1a;
+            }
+            p {
+                font-size: 14px;
+                color: #666;
+                margin: 0 0 32px 0;
+                line-height: 1.4;
             }
             .google-btn {
                 background: #4285f4;
                 color: white;
                 border: none;
                 padding: 12px 24px;
-                border-radius: 4px;
+                border-radius: 6px;
                 cursor: pointer;
-                font-size: 16px;
-                margin: 20px 0;
+                font-size: 14px;
+                font-weight: 500;
+                margin: 0;
+                transition: background-color 0.2s;
+                min-width: 200px;
             }
             .google-btn:hover {
                 background: #357ae8;
             }
+            .google-btn:disabled {
+                background: #ccc;
+                cursor: not-allowed;
+            }
             .status {
-                margin: 20px 0;
-                padding: 10px;
-                border-radius: 4px;
+                margin: 24px 0 0 0;
+                padding: 12px;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 500;
             }
             .success {
-                background: #d4edda;
-                color: #155724;
+                background: #e8f5e8;
+                color: #2d5a2d;
+                border: 1px solid #c3e6c3;
             }
             .error {
-                background: #f8d7da;
-                color: #721c24;
+                background: #ffeaea;
+                color: #d63031;
+                border: 1px solid #ffb3b3;
             }
         </style>
     </head>
     <body>
-        <div class="auth-container">
-            <h2>🔐 Chrome拡張認証</h2>
-            <p>許可されたGoogleアカウントでログインしてください</p>
+        <h2>Maus Hub Extension</h2>
+        <p>許可されたGoogleアカウントでログインしてください</p>
 
-            <button id="googleLogin" class="google-btn">🔍 Googleでログイン</button>
+        <button id="googleLogin" class="google-btn">Googleでログイン</button>
 
-            <div id="status"></div>
-        </div>
+        <div id="status"></div>
 
         <!-- Firebase SDK -->
         <script type="module">
@@ -70,6 +87,7 @@
                 storageBucket: "sample-9dde3.firebasestorage.app",
                 messagingSenderId: "434283491779",
                 appId: "1:434283491779:web:56a18cfeb70f89e2a2cd76",
+                measurementId: "G-4NB7PH96KE",
             };
 
             const app = initializeApp(firebaseConfig);
