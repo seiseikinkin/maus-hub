@@ -1,14 +1,20 @@
-import React from "react";
-import type { PokePasteData } from "../firebase/pokePasteService";
+import React, { useState } from "react";
+import type { PokePasteData, SelectionMemo } from "../firebase/pokePasteService";
 import { StarRating } from "./StarRating";
+import { PokePasteDetailModal } from "./PokePasteDetailModal";
 
 interface PokePasteItemProps {
     pokepaste: PokePasteData;
-    onDelete?: (id: string) => void;
-    onRatingChange?: (id: string, rating: number) => void;
+    allPokepastes: PokePasteData[];
+    onDelete: (id: string) => void;
+    onRatingChange: (id: string, rating: number) => void;
+    onMemoChange?: (id: string, memo: string) => void;
+    onSelectionMemosChange?: (id: string, selectionMemos: SelectionMemo[]) => void;
 }
 
-export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste, onDelete, onRatingChange }) => {
+export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste, allPokepastes, onDelete, onRatingChange, onMemoChange, onSelectionMemosChange }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const formatDate = (timestamp: number) => {
         return new Date(timestamp).toLocaleString("ja-JP", {
             year: "numeric",
@@ -17,10 +23,6 @@ export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste, onDelet
             hour: "2-digit",
             minute: "2-digit",
         });
-    };
-
-    const handleOpenUrl = () => {
-        window.open(pokepaste.url, "_blank");
     };
 
     const handleDelete = (e: React.MouseEvent) => {
@@ -34,6 +36,14 @@ export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste, onDelet
         if (onRatingChange) {
             onRatingChange(pokepaste.id, rating);
         }
+    };
+
+    const handleRowClick = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
     };
 
     const handleCopyLink = async (e: React.MouseEvent) => {
@@ -92,69 +102,83 @@ export const PokePasteItem: React.FC<PokePasteItemProps> = ({ pokepaste, onDelet
     };
 
     return (
-        <div className="pokepaste-item-single-line" onClick={handleOpenUrl}>
-            <div className="pokepaste-title-section">
-                <span className="pokepaste-title">{pokepaste.title || "Untitled PokePaste"}</span>
-            </div>
+        <>
+            <div className="pokepaste-item-single-line" onClick={handleRowClick}>
+                <div className="pokepaste-title-section">
+                    <a href={pokepaste.url} target="_blank" rel="noopener noreferrer" className="pokepaste-title-link" onClick={(e) => e.stopPropagation()}>
+                        {pokepaste.title || "Untitled PokePaste"}
+                    </a>
+                </div>
 
-            <div className="pokepaste-author-section">
-                <span className="pokepaste-author">{pokepaste.author ? `by ${pokepaste.author}` : "作者不明"}</span>
-            </div>
+                <div className="pokepaste-author-section">
+                    <span className="pokepaste-author">{pokepaste.author ? `by ${pokepaste.author}` : "作者不明"}</span>
+                </div>
 
-            <div className="pokepaste-pokemon-section">
-                {pokepaste.pokemonNames && pokepaste.pokemonNames.length > 0 ? (
-                    <div className="pokepaste-pokemon-row">
-                        {pokepaste.pokemonNames.map((name, index) => {
-                            // pokemonTeamからの詳細情報を取得（存在する場合）
-                            const pokemonDetails = pokepaste.pokemonTeam?.[index];
-                            const tooltipText = pokemonDetails
-                                ? `${pokemonDetails.species}${pokemonDetails.nickname ? ` (${pokemonDetails.nickname})` : ""}
+                <div className="pokepaste-pokemon-section">
+                    {pokepaste.pokemonNames && pokepaste.pokemonNames.length > 0 ? (
+                        <div className="pokepaste-pokemon-row">
+                            {pokepaste.pokemonNames.map((name, index) => {
+                                // pokemonTeamからの詳細情報を取得（存在する場合）
+                                const pokemonDetails = pokepaste.pokemonTeam?.[index];
+                                const tooltipText = pokemonDetails
+                                    ? `${pokemonDetails.species}${pokemonDetails.nickname ? ` (${pokemonDetails.nickname})` : ""}
 ${pokemonDetails.item ? `@ ${pokemonDetails.item}` : ""}
 ${pokemonDetails.ability ? `Ability: ${pokemonDetails.ability}` : ""}
 ${pokemonDetails.teraType ? `Tera Type: ${pokemonDetails.teraType}` : ""}
 ${pokemonDetails.nature ? `Nature: ${pokemonDetails.nature}` : ""}
 ${pokemonDetails.moves.length > 0 ? `Moves: ${pokemonDetails.moves.join(", ")}` : ""}`
-                                : name;
+                                    : name;
 
-                            return (
-                                <div key={index} className="pokemon-item-inline">
-                                    <img
-                                        src={getPokemonImageUrl(name)}
-                                        alt={name}
-                                        className="pokemon-sprite-inline"
-                                        onError={handleImageError}
-                                        title={tooltipText}
-                                    />
-                                    <span className="pokemon-name-text" style={{ display: "none" }}>
-                                        🎮 {name}
-                                    </span>
-                                </div>
-                            );
-                        })}
-                    </div>
-                ) : (
-                    <span className="no-pokemon">ポケモンなし</span>
-                )}
-            </div>
+                                return (
+                                    <div key={index} className="pokemon-item-inline">
+                                        <img
+                                            src={getPokemonImageUrl(name)}
+                                            alt={name}
+                                            className="pokemon-sprite-inline"
+                                            onError={handleImageError}
+                                            title={tooltipText}
+                                        />
+                                        <span className="pokemon-name-text" style={{ display: "none" }}>
+                                            🎮 {name}
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <span className="no-pokemon">ポケモンなし</span>
+                    )}
+                </div>
 
-            <div className="pokepaste-rating-section" onClick={(e) => e.stopPropagation()}>
-                <StarRating rating={pokepaste.rating || 0} onRatingChange={handleRatingChange} size="small" />
-            </div>
+                <div className="pokepaste-rating-section" onClick={(e) => e.stopPropagation()}>
+                    <StarRating rating={pokepaste.rating || 0} onRatingChange={handleRatingChange} size="small" />
+                </div>
 
-            <div className="pokepaste-date-section">
-                <span className="pokepaste-date">{formatDate(pokepaste.timestamp)}</span>
-            </div>
+                <div className="pokepaste-date-section">
+                    <span className="pokepaste-date">{formatDate(pokepaste.timestamp)}</span>
+                </div>
 
-            <div className="pokepaste-actions-section">
-                <button className="copy-link-button" onClick={handleCopyLink} title="リンクをコピー">
-                    🔗
-                </button>
-                {onDelete && (
-                    <button className="delete-button" onClick={handleDelete} title="削除">
-                        🗑️
+                <div className="pokepaste-actions-section" onClick={(e) => e.stopPropagation()}>
+                    <button className="copy-link-button" onClick={handleCopyLink} title="リンクをコピー">
+                        🔗
                     </button>
-                )}
+                    {onDelete && (
+                        <button className="delete-button" onClick={handleDelete} title="削除">
+                            🗑️
+                        </button>
+                    )}
+                </div>
             </div>
-        </div>
+
+            <PokePasteDetailModal
+                pokepaste={pokepaste}
+                allPokepastes={allPokepastes}
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                onRatingChange={onRatingChange}
+                onMemoChange={onMemoChange}
+                onSelectionMemosChange={onSelectionMemosChange}
+            />
+        </>
     );
 };

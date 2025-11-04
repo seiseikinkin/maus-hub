@@ -682,11 +682,11 @@ body {
     border-bottom: 1px solid var(--border-primary);
     transition: background-color 0.2s;
     background: var(--bg-card);
-    cursor: pointer;
     gap: 0.5rem;
     width: 100%;
     overflow: hidden;
     min-width: 0;
+    cursor: pointer;
 }
 
 .pokepaste-item-single-line:hover {
@@ -702,6 +702,24 @@ body {
     flex: 2 1 180px;
     min-width: 180px;
     max-width: 350px;
+}
+
+.pokepaste-title-link {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.pokepaste-title-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
 }
 
 .pokepaste-title-section .pokepaste-title {
@@ -2759,6 +2777,7 @@ body {
     }
 
     .pokepaste-title-section .pokepaste-title,
+    .pokepaste-title-link,
     .pokepaste-author-section .pokepaste-author {
         white-space: normal;
         overflow: visible;

@@ -1,0 +1,421 @@
+/* 選出メモセクション */
+.selection-memo-section {
+    margin-top: 24px;
+}
+
+.selection-memo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.selection-memo-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color, #333);
+}
+
+[data-theme="dark"] .selection-memo-header h3 {
+    color: #e0e0e0;
+}
+
+.add-memo-button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.add-memo-button:hover {
+    background-color: #0056b3;
+}
+
+[data-theme="dark"] .add-memo-button {
+    background-color: #4a90e2;
+}
+
+[data-theme="dark"] .add-memo-button:hover {
+    background-color: #357abd;
+}
+
+.no-memos-message {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+}
+
+[data-theme="dark"] .no-memos-message {
+    color: #aaa;
+    background-color: #1e1e1e;
+}
+
+/* 選出メモリスト */
+.selection-memos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 16px;
+}
+
+.selection-memo-item {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+[data-theme="dark"] .selection-memo-item {
+    background-color: #1e1e1e;
+    border-color: #444;
+}
+
+/* ヘッダー行 */
+.selection-memo-header-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+[data-theme="dark"] .selection-memo-header-row {
+    border-bottom-color: #444;
+}
+
+.rating-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rating-wrapper label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #666;
+    white-space: nowrap;
+}
+
+[data-theme="dark"] .rating-wrapper label {
+    color: #aaa;
+}
+
+/* 相手のポケモン画像表示 */
+.opponent-pokemon-display {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.opponent-pokemon-display label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #666;
+}
+
+[data-theme="dark"] .opponent-pokemon-display label {
+    color: #aaa;
+}
+
+.pokemon-sprites {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.pokemon-sprite-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.pokemon-sprite {
+    width: 48px;
+    height: 48px;
+    image-rendering: pixelated;
+    object-fit: contain;
+}
+
+.pokemon-name-label {
+    font-size: 0.75rem;
+    color: var(--text-color, #333);
+    text-align: center;
+}
+
+[data-theme="dark"] .pokemon-name-label {
+    color: #e0e0e0;
+}
+
+/* コンテンツエリア */
+.selection-memo-content {
+    display: flex;
+    gap: 20px;
+}
+
+.selection-memo-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.selection-memo-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.selection-memo-right label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #666;
+}
+
+[data-theme="dark"] .selection-memo-right label {
+    color: #aaa;
+}
+
+/* 相手チーム選択 */
+.opponent-select-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.opponent-select-wrapper label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #666;
+}
+
+[data-theme="dark"] .opponent-select-wrapper label {
+    color: #aaa;
+}
+
+.opponent-select {
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background-color: white;
+    color: var(--text-color, #333);
+    cursor: pointer;
+}
+
+[data-theme="dark"] .opponent-select {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+.opponent-select:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+[data-theme="dark"] .opponent-select:focus {
+    border-color: #4a90e2;
+}
+
+/* ポケモン選択 */
+.pokemon-selects-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pokemon-selects-wrapper label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #666;
+}
+
+[data-theme="dark"] .pokemon-selects-wrapper label {
+    color: #aaa;
+}
+
+/* 画像付き選択 */
+.pokemon-image-selects {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.pokemon-selects {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.pokemon-select {
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background-color: white;
+    color: var(--text-color, #333);
+    cursor: pointer;
+}
+
+[data-theme="dark"] .pokemon-select {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+.pokemon-select:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+[data-theme="dark"] .pokemon-select:focus {
+    border-color: #4a90e2;
+}
+
+/* 選出メモテキストエリア */
+.selection-memo-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 200px;
+    color: var(--text-color, #333);
+    background-color: white;
+}
+
+[data-theme="dark"] .selection-memo-textarea {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+.selection-memo-textarea:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+[data-theme="dark"] .selection-memo-textarea:focus {
+    border-color: #4a90e2;
+}
+
+/* 削除ボタン */
+.delete-memo-button {
+    padding: 8px 12px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    height: fit-content;
+    white-space: nowrap;
+}
+
+.delete-memo-button:hover {
+    background-color: #c82333;
+}
+
+[data-theme="dark"] .delete-memo-button {
+    background-color: #d9534f;
+}
+
+[data-theme="dark"] .delete-memo-button:hover {
+    background-color: #c9302c;
+}
+
+/* 保存ボタン */
+.save-selection-memos-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.save-selection-memos-button:hover:not(:disabled) {
+    background-color: #218838;
+}
+
+.save-selection-memos-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+[data-theme="dark"] .save-selection-memos-button {
+    background-color: #5cb85c;
+}
+
+[data-theme="dark"] .save-selection-memos-button:hover:not(:disabled) {
+    background-color: #4cae4c;
+}
+
+[data-theme="dark"] .save-selection-memos-button:disabled {
+    background-color: #555;
+}
+
+/* レスポンシブ */
+@media (max-width: 1024px) {
+    .selection-memo-content {
+        flex-direction: column;
+    }
+
+    .selection-memo-header-row {
+        flex-wrap: wrap;
+    }
+
+    .pokemon-image-selects {
+        grid-template-columns: 1fr;
+    }
+
+    .pokemon-selects {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .selection-memo-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .selection-memo-header-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .rating-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pokemon-sprites {
+        justify-content: center;
+    }
+
+    .pokemon-selects {
+        grid-template-columns: 1fr;
+    }
+}

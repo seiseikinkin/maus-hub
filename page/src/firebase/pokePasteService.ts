@@ -19,6 +19,16 @@ export interface PokemonData {
     rawText: string;
 }
 
+// 選出メモの型定義
+export interface SelectionMemo {
+    id: string; // 一意のID
+    opponentTeamId: string; // 相手チームのPokePaste ID
+    selectedPokemon: [string, string, string, string]; // 選出した4体のポケモン名
+    opponentSelectedPokemon: [string, string, string, string]; // 相手の選出想定4体
+    memo: string; // 選出についてのメモ
+    rating?: number; // 1-5の評価
+}
+
 // PokePasteデータの型定義
 export interface PokePasteData {
     id: string;
@@ -30,6 +40,8 @@ export interface PokePasteData {
     pokemonNames?: string[];
     pokemonTeam?: PokemonData[];
     rating?: number; // 1-5の評価
+    memo?: string; // チームについてのメモ
+    selectionMemos?: SelectionMemo[]; // 選出メモのリスト
 }
 
 // Firestore PokePasteサービス
@@ -208,6 +220,32 @@ export class PokePasteService {
         } catch (error) {
             console.error("Error updating rating:", error);
             throw new Error("Failed to update rating");
+        }
+    }
+
+    // PokePasteのメモを更新
+    async updatePokePasteMemo(id: string, memo: string): Promise<void> {
+        try {
+            const { updateDoc, doc } = await import("firebase/firestore");
+            const docRef = doc(db, "pokepastes", id);
+            await updateDoc(docRef, { memo: memo });
+            console.log("Memo updated successfully:", id);
+        } catch (error) {
+            console.error("Error updating memo:", error);
+            throw new Error("Failed to update memo");
+        }
+    }
+
+    // PokePasteの選出メモを更新
+    async updateSelectionMemos(id: string, selectionMemos: SelectionMemo[]): Promise<void> {
+        try {
+            const { updateDoc, doc } = await import("firebase/firestore");
+            const docRef = doc(db, "pokepastes", id);
+            await updateDoc(docRef, { selectionMemos: selectionMemos });
+            console.log("Selection memos updated successfully:", id);
+        } catch (error) {
+            console.error("Error updating selection memos:", error);
+            throw new Error("Failed to update selection memos");
         }
     }
 
