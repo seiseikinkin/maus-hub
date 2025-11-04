@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import mausIcon from "../assets/icon.png";
 
 export const LoginComponent: React.FC = () => {
     const { signInWithGoogle, loading } = useAuth();
@@ -47,6 +48,7 @@ export const LoginComponent: React.FC = () => {
         <div className="login-container">
             <div className="login-card">
                 <div className="login-header">
+                    <img src={mausIcon} alt="Maus Hub" className="header-icon" />
                     <h2>Maus Hub</h2>
                     <div className="access-notice">
                         <p>⚠️ このアプリケーションは許可されたユーザーのみご利用いただけます</p>

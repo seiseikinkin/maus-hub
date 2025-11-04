@@ -19,8 +19,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             <div className="auth-loading">
                 <div className="auth-loading-content">
                     <div className="loading-spinner"></div>
-                    <h2>Maus Hub</h2>
-                    <p>認証状態を確認中...</p>
+                    <p>認証状態を確認中</p>
                 </div>
             </div>
         );
