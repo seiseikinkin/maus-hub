@@ -1,0 +1,238 @@
+/* チーム画像選択ドロップダウン */
+.team-image-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.team-image-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    cursor: pointer;
+    min-height: 60px;
+    transition: border-color 0.2s;
+}
+
+[data-theme="dark"] .team-image-select-trigger {
+    background-color: #2a2a2a;
+    border-color: #444;
+}
+
+.team-image-select-trigger:hover {
+    border-color: #007bff;
+}
+
+[data-theme="dark"] .team-image-select-trigger:hover {
+    border-color: #4a90e2;
+}
+
+.team-image-select-selected {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0; /* flexboxでの縮小を許可 */
+    overflow: hidden; /* はみ出しを防ぐ */
+}
+
+.team-pokemon-preview {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    flex-shrink: 0; /* ポケモン画像は縮小しない */
+}
+
+.team-title {
+    color: var(--text-color, #333);
+    font-size: 0.95rem;
+    font-weight: 500;
+    flex: 1;
+    min-width: 0; /* テキストの収縮を許可 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team-image-select-placeholder {
+    color: #999;
+    font-size: 0.95rem;
+}
+
+[data-theme="dark"] .team-image-select-placeholder {
+    color: #666;
+}
+
+.pokemon-mini-sprite {
+    width: 32px;
+    height: 32px;
+    image-rendering: pixelated;
+    object-fit: contain;
+}
+
+.clear-button {
+    padding: 4px 8px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex-shrink: 0;
+}
+
+.clear-button:hover {
+    background-color: #c82333;
+}
+
+[data-theme="dark"] .clear-button {
+    background-color: #d9534f;
+}
+
+[data-theme="dark"] .clear-button:hover {
+    background-color: #c9302c;
+}
+
+.dropdown-arrow {
+    margin-left: 8px;
+    font-size: 0.7rem;
+    color: #666;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+
+[data-theme="dark"] .dropdown-arrow {
+    color: #aaa;
+}
+
+.dropdown-arrow.open {
+    transform: rotate(180deg);
+}
+
+/* ドロップダウンメニュー */
+.team-image-select-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+}
+
+[data-theme="dark"] .team-image-select-dropdown {
+    background-color: #2a2a2a;
+    border-color: #444;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.team-image-select-option {
+    padding: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+[data-theme="dark"] .team-image-select-option {
+    border-bottom-color: #333;
+}
+
+.team-image-select-option:last-child {
+    border-bottom: none;
+}
+
+.team-image-select-option:hover {
+    background-color: #f8f9fa;
+}
+
+[data-theme="dark"] .team-image-select-option:hover {
+    background-color: #3a3a3a;
+}
+
+.team-image-select-option.selected {
+    background-color: #e7f3ff;
+}
+
+[data-theme="dark"] .team-image-select-option.selected {
+    background-color: #1e3a5f;
+}
+
+.team-option-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0; /* flexboxでの縮小を許可 */
+    overflow: hidden;
+}
+
+.team-option-title {
+    color: var(--text-color, #333);
+    font-size: 0.95rem;
+    font-weight: 500;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+[data-theme="dark"] .team-option-title {
+    color: #e0e0e0;
+}
+
+.team-option-pokemon {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    flex-shrink: 0; /* ポケモン画像は縮小しない */
+}
+
+.team-image-select-option.empty-option {
+    font-style: italic;
+    color: #999;
+    padding: 10px 12px;
+}
+
+[data-theme="dark"] .team-image-select-option.empty-option {
+    color: #666;
+}
+
+/* スクロールバーのスタイル */
+.team-image-select-dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+.team-image-select-dropdown::-webkit-scrollbar-track {
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+
+[data-theme="dark"] .team-image-select-dropdown::-webkit-scrollbar-track {
+    background-color: #1e1e1e;
+}
+
+.team-image-select-dropdown::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+[data-theme="dark"] .team-image-select-dropdown::-webkit-scrollbar-thumb {
+    background-color: #555;
+}
+
+.team-image-select-dropdown::-webkit-scrollbar-thumb:hover {
+    background-color: #aaa;
+}
+
+[data-theme="dark"] .team-image-select-dropdown::-webkit-scrollbar-thumb:hover {
+    background-color: #666;
+}

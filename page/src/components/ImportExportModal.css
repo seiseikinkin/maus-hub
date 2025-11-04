@@ -25,6 +25,16 @@
     animation: modalAppear 0.2s ease-out;
 }
 
+/* ダークテーマ対応 */
+[data-theme="dark"] .modal-overlay {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="dark"] .modal-content {
+    background: #1f2937;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
 @keyframes modalAppear {
     from {
         opacity: 0;
@@ -44,11 +54,19 @@
     border-bottom: 1px solid #e5e7eb;
 }
 
+[data-theme="dark"] .modal-header {
+    border-bottom: 1px solid #374151;
+}
+
 .modal-header h3 {
     margin: 0;
     font-size: 20px;
     font-weight: 600;
     color: #1f2937;
+}
+
+[data-theme="dark"] .modal-header h3 {
+    color: #f9fafb;
 }
 
 .modal-close-button {
@@ -68,6 +86,15 @@
     color: #374151;
 }
 
+[data-theme="dark"] .modal-close-button {
+    color: #9ca3af;
+}
+
+[data-theme="dark"] .modal-close-button:hover {
+    background: #374151;
+    color: #f3f4f6;
+}
+
 .modal-body {
     padding: 24px;
 }
@@ -84,6 +111,10 @@
     font-size: 14px;
 }
 
+[data-theme="dark"] .import-section label {
+    color: #d1d5db;
+}
+
 .import-section textarea {
     width: 100%;
     min-height: 160px;
@@ -98,16 +129,31 @@
     box-sizing: border-box;
 }
 
+[data-theme="dark"] .import-section textarea {
+    background: #111827;
+    border-color: #374151;
+    color: #f9fafb;
+}
+
 .import-section textarea:focus {
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+[data-theme="dark"] .import-section textarea:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
 .import-section textarea:disabled {
     background-color: #f9fafb;
     color: #6b7280;
     cursor: not-allowed;
+}
+
+[data-theme="dark"] .import-section textarea:disabled {
+    background-color: #1f2937;
+    color: #6b7280;
 }
 
 .import-result {
@@ -118,11 +164,20 @@
     margin-top: 16px;
 }
 
+[data-theme="dark"] .import-result {
+    background: #111827;
+    border-color: #374151;
+}
+
 .import-result h4 {
     margin: 0 0 12px 0;
     font-size: 16px;
     font-weight: 600;
     color: #1e293b;
+}
+
+[data-theme="dark"] .import-result h4 {
+    color: #f1f5f9;
 }
 
 .result-summary {
@@ -140,6 +195,11 @@
     font-size: 14px;
 }
 
+[data-theme="dark"] .success-count {
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.15);
+}
+
 .failed-count {
     color: #dc2626;
     font-weight: 500;
@@ -149,8 +209,17 @@
     font-size: 14px;
 }
 
+[data-theme="dark"] .failed-count {
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.15);
+}
+
 .error-list {
     margin-top: 12px;
+}
+
+[data-theme="dark"] .error-list {
+    background: transparent;
 }
 
 .error-list h5 {
@@ -158,6 +227,10 @@
     font-size: 14px;
     font-weight: 600;
     color: #dc2626;
+}
+
+[data-theme="dark"] .error-list h5 {
+    color: #f87171;
 }
 
 .error-list ul {
@@ -173,12 +246,20 @@
     line-height: 1.4;
 }
 
+[data-theme="dark"] .error-item {
+    color: #fca5a5;
+}
+
 .modal-footer {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
     padding: 16px 24px 24px 24px;
     border-top: 1px solid #e5e7eb;
+}
+
+[data-theme="dark"] .modal-footer {
+    border-top-color: #374151;
 }
 
 .import-button {
@@ -202,6 +283,18 @@
     cursor: not-allowed;
 }
 
+[data-theme="dark"] .import-button {
+    background: #2563eb;
+}
+
+[data-theme="dark"] .import-button:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+[data-theme="dark"] .import-button:disabled {
+    background: #4b5563;
+}
+
 .cancel-button {
     background: #f3f4f6;
     color: #374151;
@@ -217,6 +310,17 @@
 .cancel-button:hover {
     background: #e5e7eb;
     border-color: #9ca3af;
+}
+
+[data-theme="dark"] .cancel-button {
+    background: #374151;
+    color: #d1d5db;
+    border-color: #4b5563;
+}
+
+[data-theme="dark"] .cancel-button:hover {
+    background: #4b5563;
+    border-color: #6b7280;
 }
 
 /* レスポンシブ対応 */

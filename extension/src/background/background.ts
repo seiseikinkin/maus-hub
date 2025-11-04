@@ -51,6 +51,23 @@ self.addEventListener("unhandledrejection", (event) => {
     event.preventDefault();
 });
 
+interface PokemonData {
+    nickname: string | null;
+    species: string;
+    gender: string | null;
+    item: string | null;
+    ability: string | null;
+    level: number;
+    shiny: boolean;
+    happiness: number;
+    nature: string | null;
+    teraType: string | null;
+    evs: Record<string, number>;
+    ivs: Record<string, number>;
+    moves: string[];
+    rawText: string;
+}
+
 interface PokePasteItem {
     url: string;
     title: string;
@@ -58,6 +75,7 @@ interface PokePasteItem {
     id: string;
     author?: string;
     pokemonNames?: string[];
+    pokemonTeam?: PokemonData[];
 }
 
 interface UserProfile {
@@ -281,7 +299,28 @@ async function handleAddPokePaste(sendResponse: (response?: unknown) => void) {
         }
 
         // コンテンツスクリプトからPokePaste情報を取得
-        let pokePasteInfo = { author: null, pokemonNames: [] };
+        let pokePasteInfo: { author: string | null; title: string | null; pokemonNames: string[]; pokemonTeam?: PokemonData[] } = {
+            author: null,
+            title: null,
+            pokemonNames: [],
+            pokemonTeam: [],
+        };
+        
+        // コンテンツスクリプトの読み込みを確認・注入
+        try {
+            // まずコンテンツスクリプトが読み込まれているか確認
+            await chrome.scripting.executeScript({
+                target: { tabId: activeTab.id! },
+                files: ['pokepaste-extractor.js']
+            });
+            console.log("Content script injected/verified");
+            
+            // 少し待ってからメッセージを送信
+            await new Promise(resolve => setTimeout(resolve, 100));
+        } catch (error) {
+            console.log("Content script may already be loaded:", error);
+        }
+
         try {
             console.log("Sending message to content script...");
             const response = await chrome.tabs.sendMessage(activeTab.id!, { action: "extractPokePasteInfo" });
@@ -290,8 +329,22 @@ async function handleAddPokePaste(sendResponse: (response?: unknown) => void) {
             if (response) {
                 pokePasteInfo = response;
                 console.log("Extracted PokePaste info:", pokePasteInfo);
+                console.log("Title:", pokePasteInfo.title);
                 console.log("Author:", pokePasteInfo.author);
                 console.log("Pokemon count:", pokePasteInfo.pokemonNames?.length || 0);
+                console.log("Pokemon team data:", pokePasteInfo.pokemonTeam);
+
+                // ポケモンチーム情報のデバッグ
+                if (pokePasteInfo.pokemonTeam && pokePasteInfo.pokemonTeam.length > 0) {
+                    pokePasteInfo.pokemonTeam.forEach((pokemon: PokemonData, index: number) => {
+                        console.log(`Pokemon ${index + 1}: ${pokemon.species}`, {
+                            nickname: pokemon.nickname,
+                            item: pokemon.item,
+                            ability: pokemon.ability,
+                            moves: pokemon.moves,
+                        });
+                    });
+                }
 
                 // ハイフンを含むポケモン名のデバッグ情報
                 if (pokePasteInfo.pokemonNames && pokePasteInfo.pokemonNames.length > 0) {
@@ -307,16 +360,25 @@ async function handleAddPokePaste(sendResponse: (response?: unknown) => void) {
         } catch (error) {
             console.error("Error communicating with content script:", error);
             console.error("Error details:", error instanceof Error ? error.message : "Unknown error");
+            
+            // コンテンツスクリプトとの通信エラーの場合、ユーザーにリロードを促す
+            sendResponse({
+                success: false,
+                error: "コンテンツスクリプトの読み込みに失敗しました。ページをリロードしてから再度お試しください。",
+                needReload: true
+            });
+            return;
         }
 
         // 新しいアイテムを作成
         const newItem = {
             url: activeTab.url,
-            title: activeTab.title || "No title",
+            title: pokePasteInfo.title || activeTab.title || "No title",
             timestamp: Date.now(),
             userId: currentUser.uid,
             author: pokePasteInfo.author,
             pokemonNames: pokePasteInfo.pokemonNames,
+            pokemonTeam: pokePasteInfo.pokemonTeam,
         };
 
         try {

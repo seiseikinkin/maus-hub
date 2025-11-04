@@ -1,0 +1,206 @@
+/* ポケモン画像選択ドロップダウン */
+.pokemon-image-select-wrapper {
+    position: relative;
+    width: auto;
+    min-width: 80px;
+}
+
+.pokemon-image-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 8px;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    cursor: pointer;
+    min-height: 40px;
+    transition: border-color 0.2s;
+    gap: 4px;
+}
+
+[data-theme="dark"] .pokemon-image-select-trigger {
+    background-color: #2a2a2a;
+    border-color: #444;
+}
+
+.pokemon-image-select-trigger:hover {
+    border-color: #007bff;
+}
+
+[data-theme="dark"] .pokemon-image-select-trigger:hover {
+    border-color: #4a90e2;
+}
+
+.pokemon-image-select-selected {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pokemon-image-select-selected span {
+    color: var(--text-color, #333);
+    font-size: 0.9rem;
+}
+
+[data-theme="dark"] .pokemon-image-select-selected span {
+    color: #e0e0e0;
+}
+
+.pokemon-image-select-placeholder {
+    color: #999;
+    font-size: 0.9rem;
+}
+
+[data-theme="dark"] .pokemon-image-select-placeholder {
+    color: #666;
+}
+
+.pokemon-thumbnail {
+    width: 32px;
+    height: 32px;
+    image-rendering: pixelated;
+    object-fit: contain;
+}
+
+.clear-button {
+    margin-left: auto;
+    padding: 2px 6px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.clear-button:hover {
+    background-color: #c82333;
+}
+
+[data-theme="dark"] .clear-button {
+    background-color: #d9534f;
+}
+
+[data-theme="dark"] .clear-button:hover {
+    background-color: #c9302c;
+}
+
+.dropdown-arrow {
+    font-size: 0.7rem;
+    color: #666;
+    transition: transform 0.2s;
+}
+
+[data-theme="dark"] .dropdown-arrow {
+    color: #aaa;
+}
+
+.dropdown-arrow.open {
+    transform: rotate(180deg);
+}
+
+/* ドロップダウンメニュー */
+.pokemon-image-select-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 370px;
+}
+
+[data-theme="dark"] .pokemon-image-select-dropdown {
+    background-color: #2a2a2a;
+    border-color: #444;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.pokemon-image-select-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-radius: 4px;
+    width: auto;
+    flex-shrink: 0;
+}
+
+.pokemon-image-select-option:hover {
+    background-color: #f0f0f0;
+}
+
+[data-theme="dark"] .pokemon-image-select-option:hover {
+    background-color: #3a3a3a;
+}
+
+.pokemon-image-select-option.selected {
+    background-color: #e7f3ff;
+}
+
+[data-theme="dark"] .pokemon-image-select-option.selected {
+    background-color: #1e3a5f;
+}
+
+.pokemon-image-select-option span {
+    color: var(--text-color, #333);
+    font-size: 0.9rem;
+}
+
+[data-theme="dark"] .pokemon-image-select-option span {
+    color: #e0e0e0;
+}
+
+.pokemon-image-select-option.empty-option {
+    font-style: italic;
+    color: #999;
+    padding: 4px 8px;
+    width: auto;
+    min-width: 50px;
+}
+
+[data-theme="dark"] .pokemon-image-select-option.empty-option {
+    color: #666;
+}
+
+/* スクロールバーのスタイル */
+.pokemon-image-select-dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+.pokemon-image-select-dropdown::-webkit-scrollbar-track {
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+
+[data-theme="dark"] .pokemon-image-select-dropdown::-webkit-scrollbar-track {
+    background-color: #1e1e1e;
+}
+
+.pokemon-image-select-dropdown::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+[data-theme="dark"] .pokemon-image-select-dropdown::-webkit-scrollbar-thumb {
+    background-color: #555;
+}
+
+.pokemon-image-select-dropdown::-webkit-scrollbar-thumb:hover {
+    background-color: #aaa;
+}
+
+[data-theme="dark"] .pokemon-image-select-dropdown::-webkit-scrollbar-thumb:hover {
+    background-color: #666;
+}

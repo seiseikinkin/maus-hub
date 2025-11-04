@@ -1,6 +1,6 @@
 // Firebase設定ファイル
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, browserLocalPersistence, setPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // Firebase設定（実際のプロジェクトの値に置き換えてください）
@@ -21,6 +21,11 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
+// 認証の永続性を設定（Safari対応のため明示的に設定）
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+    console.error("Failed to set auth persistence:", error);
+});
+
 // Google認証プロバイダー（ポップアップ用）
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope("profile");
@@ -35,8 +40,7 @@ googleProviderRedirect.addScope("profile");
 googleProviderRedirect.addScope("email");
 googleProviderRedirect.setCustomParameters({
     prompt: "select_account",
-    ux_mode: "redirect",
-    access_type: "online",
+    // Safari対策: ux_modeを削除してデフォルト動作に任せる
 });
 
 export default app;

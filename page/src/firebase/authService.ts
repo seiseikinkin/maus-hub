@@ -11,9 +11,11 @@ export class AuthService {
             if (this.shouldUseRedirect()) {
                 if (import.meta.env.DEV) {
                     console.log("Using redirect authentication method for mobile");
+                    console.log("Current URL:", window.location.href);
                 }
                 await signInWithRedirect(auth, googleProviderRedirect);
-                return null; // リダイレクト後に結果を取得
+                // リダイレクト開始（結果は次回ページロード時に取得）
+                return null;
             }
 
             // デスクトップでは常にポップアップ方式を使用
@@ -45,13 +47,42 @@ export class AuthService {
     // リダイレクト後の結果を処理
     async handleRedirectResult(): Promise<User | null> {
         try {
+            if (import.meta.env.DEV) {
+                console.log("Getting redirect result...");
+                console.log("Current auth state:", auth.currentUser ? "User logged in" : "No user");
+            }
+
             const result = await getRedirectResult(auth);
+
             if (result?.user) {
+                if (import.meta.env.DEV) {
+                    console.log("Redirect result found");
+                }
                 return await this.validateAndProcessUser(result.user);
+            }
+
+            // リダイレクト結果がなくても、currentUserが存在する場合
+            // 許可チェックを行ってから返す（Safari対策）
+            if (auth.currentUser) {
+                if (import.meta.env.DEV) {
+                    console.log("No redirect result, but currentUser exists");
+                    console.log("Validating currentUser...");
+                }
+                // currentUserも許可チェックを通す
+                return await this.validateAndProcessUser(auth.currentUser);
+            }
+
+            if (import.meta.env.DEV) {
+                console.log("No redirect result and no currentUser found");
             }
             return null;
         } catch (error) {
             console.error("Redirect result error:", error);
+            // エラーの詳細をログに出力
+            if (error instanceof Error) {
+                console.error("Error message:", error.message);
+                console.error("Error stack:", error.stack);
+            }
             throw error;
         }
     }
@@ -63,14 +94,14 @@ export class AuthService {
             const isAllowed = await allowedUsersService.isEmailAllowed(user.email);
 
             if (!isAllowed) {
-                console.warn(`Unauthorized email attempt: ${user.email}`);
+                console.warn("Unauthorized user login attempt");
                 // 許可されていないユーザーは即座にサインアウト
                 await this.signOut();
                 throw new Error(`UNAUTHORIZED_EMAIL:${user.email}`);
             }
 
             if (import.meta.env.DEV) {
-                console.log("Google sign-in successful for authorized user:", user.email);
+                console.log("User sign-in successful for authorized user");
             }
         } else {
             console.error("No email address found in user profile");

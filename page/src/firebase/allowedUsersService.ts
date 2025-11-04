@@ -55,14 +55,35 @@ export class AllowedUsersService {
      */
     async isEmailAllowed(email: string): Promise<boolean> {
         if (!email) {
+            console.error("isEmailAllowed: email is empty or null");
             return false;
         }
 
-        const allowedEmails = await this.getAllowedEmails();
+        try {
+            if (import.meta.env.DEV) {
+                console.log("Checking if email is allowed");
+            }
 
-        // 大文字小文字を区別しない比較
-        const normalizedEmail = email.toLowerCase().trim();
-        return allowedEmails.some((allowedEmail) => allowedEmail.toLowerCase().trim() === normalizedEmail);
+            const allowedEmails = await this.getAllowedEmails();
+
+            if (import.meta.env.DEV) {
+                console.log("Allowed emails count:", allowedEmails.length);
+            }
+
+            // 大文字小文字を区別しない比較
+            const normalizedEmail = email.toLowerCase().trim();
+            const isAllowed = allowedEmails.some((allowedEmail) => allowedEmail.toLowerCase().trim() === normalizedEmail);
+
+            if (import.meta.env.DEV) {
+                console.log(`Email is ${isAllowed ? "allowed" : "NOT allowed"}`);
+            }
+
+            return isAllowed;
+        } catch (error) {
+            console.error("Error in isEmailAllowed:", error);
+            // エラー時は安全側に倒してfalseを返す
+            return false;
+        }
     }
 
     /**
@@ -79,7 +100,7 @@ export class AllowedUsersService {
     async debugAllowedEmails(): Promise<void> {
         if (import.meta.env.DEV) {
             const emails = await this.getAllowedEmails();
-            console.log("Allowed email addresses:", emails);
+            console.log("Allowed emails count:", emails.length);
         }
     }
 }
