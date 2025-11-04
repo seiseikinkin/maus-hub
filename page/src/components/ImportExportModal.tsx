@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import './ImportExportModal.css';
+import React, { useState } from "react";
+import "./ImportExportModal.css";
 
 interface ImportExportModalProps {
     isOpen: boolean;
@@ -7,56 +7,50 @@ interface ImportExportModalProps {
     onImport: (urls: string[]) => Promise<{ success: number; failed: number; errors: string[] }>;
 }
 
-export const ImportExportModal: React.FC<ImportExportModalProps> = ({
-    isOpen,
-    onClose,
-    onImport,
-}) => {
-    const [importText, setImportText] = useState('');
+export const ImportExportModal: React.FC<ImportExportModalProps> = ({ isOpen, onClose, onImport }) => {
+    const [importText, setImportText] = useState("");
     const [importing, setImporting] = useState(false);
-    const [importResult, setImportResult] = useState<{
-        success: number;
-        failed: number;
-        errors: string[];
-    } | null>(null);
 
     const handleImport = async () => {
         if (!importText.trim()) {
-            alert('URLを入力してください。');
+            alert("URLを入力してください。");
             return;
         }
 
         setImporting(true);
-        setImportResult(null);
 
         try {
             const urls = importText
-                .split('\n')
-                .map(url => url.trim())
-                .filter(url => url.length > 0);
+                .split("\n")
+                .map((url) => url.trim())
+                .filter((url) => url.length > 0);
 
             if (urls.length === 0) {
-                alert('有効なURLが見つかりませんでした。');
+                alert("有効なURLが見つかりませんでした。");
+                setImporting(false);
                 return;
             }
 
-            const result = await onImport(urls);
-            setImportResult(result);
+            // モーダルを閉じる
+            handleClose();
 
-            if (result.success > 0) {
-                setImportText(''); // 成功した場合はテキストエリアをクリア
+            const result = await onImport(urls);
+
+            // エラーがあった場合のみメッセージを表示
+            if (result.failed > 0) {
+                const errorMessage = `インポート結果:\n成功: ${result.success}件\n失敗: ${result.failed}件\n\nエラー詳細:\n${result.errors.join("\n")}`;
+                alert(errorMessage);
             }
         } catch (error) {
-            console.error('Import error:', error);
-            alert('インポート中にエラーが発生しました。');
+            console.error("Import error:", error);
+            alert("インポート中にエラーが発生しました。");
         } finally {
             setImporting(false);
         }
     };
 
     const handleClose = () => {
-        setImportText('');
-        setImportResult(null);
+        setImportText("");
         onClose();
     };
 
@@ -74,9 +68,7 @@ export const ImportExportModal: React.FC<ImportExportModalProps> = ({
 
                 <div className="modal-body">
                     <div className="import-section">
-                        <label htmlFor="import-textarea">
-                            PokePaste URLを入力してください（改行区切りで複数可）:
-                        </label>
+                        <label htmlFor="import-textarea">PokePaste URLを入力してください（改行区切りで複数可）:</label>
                         <textarea
                             id="import-textarea"
                             value={importText}
@@ -86,38 +78,11 @@ export const ImportExportModal: React.FC<ImportExportModalProps> = ({
                             disabled={importing}
                         />
                     </div>
-
-                    {importResult && (
-                        <div className="import-result">
-                            <h4>インポート結果</h4>
-                            <div className="result-summary">
-                                <span className="success-count">成功: {importResult.success}件</span>
-                                <span className="failed-count">失敗: {importResult.failed}件</span>
-                            </div>
-                            
-                            {importResult.errors.length > 0 && (
-                                <div className="error-list">
-                                    <h5>エラー詳細:</h5>
-                                    <ul>
-                                        {importResult.errors.map((error, index) => (
-                                            <li key={index} className="error-item">
-                                                {error}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-                        </div>
-                    )}
                 </div>
 
                 <div className="modal-footer">
-                    <button
-                        onClick={handleImport}
-                        disabled={importing || !importText.trim()}
-                        className="import-button"
-                    >
-                        {importing ? 'インポート中...' : 'インポート'}
+                    <button onClick={handleImport} disabled={importing || !importText.trim()} className="import-button">
+                        {importing ? "インポート中..." : "インポート"}
                     </button>
                     <button onClick={handleClose} className="cancel-button">
                         キャンセル

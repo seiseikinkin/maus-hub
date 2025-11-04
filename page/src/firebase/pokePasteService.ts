@@ -253,15 +253,93 @@ export class PokePasteService {
                 }
 
                 // PokePasteデータを作成
-                const newPokePaste = {
+                // URLからIDを抽出してタイトルに使用
+                const urlMatch = trimmedUrl.match(/pokepast\.es\/([^/]+)/);
+                const pasteId = urlMatch ? urlMatch[1] : "unknown";
+                let title = `PokePaste ${pasteId}`;
+                let author: string | null = null;
+                const pokemonNames: string[] = [];
+                const pokemonTeam: PokemonData[] = [];
+
+                // CORSプロキシを使用してPokePasteページを取得
+                try {
+                    console.log("Fetching PokePaste from:", trimmedUrl);
+                    // CORSプロキシを使用（allOrigins.win は無料のCORSプロキシサービス）
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(trimmedUrl)}`;
+                    const response = await fetch(proxyUrl);
+                    console.log("Fetch response status:", response.status, response.ok);
+
+                    if (response.ok) {
+                        const html = await response.text();
+                        console.log("HTML received, length:", html.length);
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, "text/html");
+
+                        // タイトルを抽出
+                        const titleElement = doc.querySelector("aside h1");
+                        console.log("Title element:", titleElement);
+                        if (titleElement?.textContent) {
+                            title = titleElement.textContent.trim();
+                            console.log("Extracted title:", title);
+                        }
+
+                        // 作者を抽出
+                        const authorElement = doc.querySelector("aside h2");
+                        console.log("Author element:", authorElement);
+                        if (authorElement?.textContent) {
+                            const match = authorElement.textContent.match(/by\s+(.+)/i);
+                            if (match) {
+                                author = match[1].trim();
+                                console.log("Extracted author:", author);
+                            }
+                        }
+
+                        // 各ポケモンの詳細情報を抽出
+                        const articles = doc.querySelectorAll("article pre");
+                        console.log("Found articles:", articles.length);
+                        articles.forEach((article, index) => {
+                            if (article.textContent) {
+                                const articleText = article.textContent;
+                                console.log(`Article ${index + 1} text:`, articleText.substring(0, 100));
+
+                                const pokemonData = this.parsePokemonData(articleText);
+
+                                if (pokemonData && pokemonData.species) {
+                                    // 種族名をリストに追加（後方互換性のため）
+                                    if (!pokemonNames.includes(pokemonData.species)) {
+                                        pokemonNames.push(pokemonData.species);
+                                    }
+
+                                    // 詳細情報を追加
+                                    pokemonTeam.push(pokemonData);
+                                    console.log(`Found Pokemon ${index + 1}:`, pokemonData.species, pokemonData);
+                                }
+                            }
+                        });
+                        console.log("Final pokemon names:", pokemonNames);
+                        console.log("Final pokemon team:", pokemonTeam);
+                    } else {
+                        console.warn("Fetch failed with status:", response.status);
+                    }
+                } catch (fetchError) {
+                    console.error("Failed to fetch PokePaste details:", fetchError);
+                    console.error("Error details:", fetchError instanceof Error ? fetchError.message : fetchError);
+                }
+
+                const newPokePaste: Partial<PokePasteData> = {
                     url: trimmedUrl,
-                    title: `Manual Import - ${new Date().toLocaleString()}`,
+                    title: title,
                     timestamp: Date.now(),
                     userId: userId,
-                    author: undefined,
-                    pokemonNames: [],
+                    pokemonNames: pokemonNames,
+                    pokemonTeam: pokemonTeam,
                     rating: 0,
                 };
+
+                // authorがnullでない場合のみ追加
+                if (author) {
+                    newPokePaste.author = author;
+                }
 
                 // Firestoreに保存
                 await addDoc(collection(db, "pokepastes"), newPokePaste);
@@ -274,6 +352,137 @@ export class PokePasteService {
         }
 
         return { success, failed, errors };
+    }
+
+    // 各ポケモンの詳細情報をパースする関数（拡張機能と同じロジック）
+    private parsePokemonData(articleText: string): PokemonData | null {
+        const pokemon: PokemonData = {
+            nickname: null,
+            species: "",
+            gender: null,
+            item: null,
+            ability: null,
+            level: 100,
+            shiny: false,
+            happiness: 255,
+            nature: null,
+            teraType: null,
+            evs: {},
+            ivs: {},
+            moves: [],
+            rawText: articleText,
+        };
+
+        const lines = articleText.split("\n").filter((line) => line.trim());
+
+        if (lines.length === 0) return null;
+
+        // 1行目: ニックネーム、種族名、性別、アイテムを解析
+        const firstLine = lines[0];
+
+        // アイテムの抽出
+        const itemMatch = firstLine.match(/@\s*(.+?)$/);
+        if (itemMatch) {
+            pokemon.item = itemMatch[1].trim();
+        }
+
+        // アイテムを除いた部分
+        const beforeItem = firstLine.split("@")[0].trim();
+
+        // 性別の抽出
+        const genderMatch = beforeItem.match(/\(([MF])\)\s*$/);
+        if (genderMatch) {
+            pokemon.gender = genderMatch[1];
+        }
+
+        // 性別を除いた部分
+        const beforeGender = beforeItem.replace(/\s*\([MF]\)\s*$/, "").trim();
+
+        // ニックネームと種族名の抽出
+        const nicknameMatch = beforeGender.match(/^(.+?)\s*\((.+?)\)$/);
+        if (nicknameMatch) {
+            pokemon.nickname = nicknameMatch[1].trim();
+            pokemon.species = nicknameMatch[2].trim();
+        } else {
+            pokemon.species = beforeGender;
+        }
+
+        // 2行目以降: 各種ステータスと技を解析
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+
+            // 能力
+            if (line.startsWith("Ability:")) {
+                pokemon.ability = line.substring(8).trim();
+            }
+            // レベル
+            else if (line.startsWith("Level:")) {
+                pokemon.level = parseInt(line.substring(6).trim());
+            }
+            // テラタイプ
+            else if (line.startsWith("Tera Type:")) {
+                pokemon.teraType = line.substring(10).trim();
+            }
+            // 色違い
+            else if (line.startsWith("Shiny:")) {
+                pokemon.shiny = line.substring(6).trim().toLowerCase() === "yes";
+            }
+            // なつき度
+            else if (line.startsWith("Happiness:")) {
+                pokemon.happiness = parseInt(line.substring(10).trim());
+            }
+            // 性格
+            else if (line.match(/Nature\s*$/i)) {
+                pokemon.nature = line.replace(/\s*Nature\s*$/i, "").trim();
+            }
+            // 努力値
+            else if (line.startsWith("EVs:")) {
+                const evString = line.substring(4).trim();
+                pokemon.evs = this.parseStats(evString);
+            }
+            // 個体値
+            else if (line.startsWith("IVs:")) {
+                const ivString = line.substring(4).trim();
+                pokemon.ivs = this.parseStats(ivString);
+            }
+            // 技
+            else if (line.match(/^[-\u2022]\s*/)) {
+                const move = line.replace(/^[-\u2022]\s*/, "").trim();
+                if (move && pokemon.moves.length < 4) {
+                    pokemon.moves.push(move);
+                }
+            }
+        }
+
+        return pokemon.species ? pokemon : null;
+    }
+
+    // EVs/IVsの文字列をパースする関数（拡張機能と同じロジック）
+    private parseStats(statsString: string): Record<string, number> {
+        const stats: Record<string, number> = {};
+        const statMap: Record<string, string> = {
+            HP: "hp",
+            Atk: "atk",
+            Def: "def",
+            SpA: "spa",
+            SpD: "spd",
+            Spe: "spe",
+        };
+
+        const parts = statsString.split("/");
+        parts.forEach((part) => {
+            const match = part.trim().match(/(\d+)\s+(\w+)/);
+            if (match) {
+                const value = parseInt(match[1]);
+                const statName = match[2];
+                const key = statMap[statName];
+                if (key) {
+                    stats[key] = value;
+                }
+            }
+        });
+
+        return stats;
     }
 }
 
