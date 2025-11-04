@@ -38,7 +38,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         const initializeAuth = async () => {
             try {
-                // まずリダイレクト結果をチェック（ページロード時に1回のみ）
+                if (import.meta.env.DEV) {
+                    console.log("=== Auth initialization started ===");
+                }
+
+                // 認証状態の変更を監視開始（先に設定）
+                unsubscribe = authService.onAuthStateChanged((authUser) => {
+                    if (import.meta.env.DEV) {
+                        console.log("Auth state changed:", authUser?.email || "No user");
+                    }
+                    if (mounted) {
+                        setUser(authUser);
+                        // onAuthStateChangedが呼ばれたらloadingをfalseに
+                        setLoading(false);
+                    }
+                });
+
+                // リダイレクト結果をチェック（ページロード時に1回のみ）
                 if (import.meta.env.DEV) {
                     console.log("Checking redirect result...");
                 }
@@ -49,23 +65,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                         if (import.meta.env.DEV) {
                             console.log("Redirect authentication successful:", redirectUser.email);
                         }
+                        // リダイレクト認証成功時は明示的にuserを設定
+                        setUser(redirectUser);
+                        setLoading(false);
+                    } else if (import.meta.env.DEV) {
+                        console.log("No redirect user found");
                     }
                 } catch (error) {
                     console.error("Redirect result error:", error);
-                    // エラーがあってもアプリは継続
+                    // エラー時でもonAuthStateChangedに任せる（ローディングは解除しない）
                 }
 
-                // 認証状態の変更を監視
-                if (mounted) {
-                    unsubscribe = authService.onAuthStateChanged((user) => {
-                        if (import.meta.env.DEV) {
-                            console.log("Auth state changed:", user?.email || "No user");
-                        }
-                        if (mounted) {
-                            setUser(user);
-                            setLoading(false);
-                        }
-                    });
+                if (import.meta.env.DEV) {
+                    console.log("=== Auth initialization completed ===");
                 }
             } catch (error) {
                 console.error("Auth initialization error:", error);

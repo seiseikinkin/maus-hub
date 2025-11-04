@@ -49,6 +49,7 @@ export class AuthService {
         try {
             if (import.meta.env.DEV) {
                 console.log("Getting redirect result...");
+                console.log("Current auth state:", auth.currentUser?.email || "No user");
             }
 
             const result = await getRedirectResult(auth);
@@ -60,8 +61,16 @@ export class AuthService {
                 return await this.validateAndProcessUser(result.user);
             }
 
+            // リダイレクト結果がなくても、currentUserが存在する場合はそれを返す
+            if (auth.currentUser) {
+                if (import.meta.env.DEV) {
+                    console.log("No redirect result, but currentUser exists:", auth.currentUser.email);
+                }
+                return auth.currentUser;
+            }
+
             if (import.meta.env.DEV) {
-                console.log("No redirect result found");
+                console.log("No redirect result and no currentUser found");
             }
             return null;
         } catch (error) {
