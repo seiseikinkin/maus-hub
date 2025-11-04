@@ -41,12 +41,6 @@ export const PokemonImageSelect: React.FC<PokemonImageSelectProps> = ({ value, o
         setIsOpen(false);
     };
 
-    const handleClear = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onChange("");
-        setIsOpen(false);
-    };
-
     return (
         <div className="pokemon-image-select-wrapper" ref={dropdownRef}>
             <div className="pokemon-image-select-trigger" onClick={() => setIsOpen(!isOpen)}>
@@ -55,21 +49,17 @@ export const PokemonImageSelect: React.FC<PokemonImageSelectProps> = ({ value, o
                         <img
                             src={getPokemonImageUrl(value)}
                             alt={value}
+                            title={value}
                             className="pokemon-thumbnail"
                             onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 target.style.display = "none";
                             }}
                         />
-                        <span>{value}</span>
-                        <button className="clear-button" onClick={handleClear} title="クリア">
-                            ×
-                        </button>
                     </div>
                 ) : (
                     <span className="pokemon-image-select-placeholder">{placeholder}</span>
                 )}
-                <span className={`dropdown-arrow ${isOpen ? "open" : ""}`}>▼</span>
             </div>
 
             {isOpen && (
@@ -78,7 +68,12 @@ export const PokemonImageSelect: React.FC<PokemonImageSelectProps> = ({ value, o
                         <span>{placeholder}</span>
                     </div>
                     {options.map((option) => (
-                        <div key={option} className={`pokemon-image-select-option ${value === option ? "selected" : ""}`} onClick={() => handleSelect(option)}>
+                        <div
+                            key={option}
+                            className={`pokemon-image-select-option ${value === option ? "selected" : ""}`}
+                            onClick={() => handleSelect(option)}
+                            title={option}
+                        >
                             <img
                                 src={getPokemonImageUrl(option)}
                                 alt={option}
@@ -88,7 +83,6 @@ export const PokemonImageSelect: React.FC<PokemonImageSelectProps> = ({ value, o
                                     target.style.display = "none";
                                 }}
                             />
-                            <span>{option}</span>
                         </div>
                     ))}
                 </div>

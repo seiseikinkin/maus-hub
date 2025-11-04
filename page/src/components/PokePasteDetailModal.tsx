@@ -25,11 +25,21 @@ export const PokePasteDetailModal: React.FC<PokePasteDetailModalProps> = ({
 }) => {
     const [memo, setMemo] = useState(pokepaste.memo || "");
     const [isSaving, setIsSaving] = useState(false);
+    const [currentSelectionMemos, setCurrentSelectionMemos] = useState<SelectionMemo[]>(pokepaste.selectionMemos || []);
 
-    // pokepasteが変更されたらmemoを更新
+    // pokepasteが変更されたらmemoと選出メモをリセット
     useEffect(() => {
         setMemo(pokepaste.memo || "");
-    }, [pokepaste.memo]);
+        setCurrentSelectionMemos(pokepaste.selectionMemos || []);
+    }, [pokepaste.memo, pokepaste.id, pokepaste.selectionMemos]);
+
+    // モーダルが開かれたときに状態をリセット
+    useEffect(() => {
+        if (isOpen) {
+            setMemo(pokepaste.memo || "");
+            setCurrentSelectionMemos(pokepaste.selectionMemos || []);
+        }
+    }, [isOpen, pokepaste.memo, pokepaste.selectionMemos]);
 
     if (!isOpen) return null;
 
@@ -69,6 +79,37 @@ export const PokePasteDetailModal: React.FC<PokePasteDetailModalProps> = ({
         }
     };
 
+    const handleMemoChange = (newMemo: string) => {
+        setMemo(newMemo);
+    };
+
+    const handleSelectionMemosChange = (selectionMemos: SelectionMemo[]) => {
+        setCurrentSelectionMemos(selectionMemos);
+    };
+
+    // 選出メモが変更されているかチェック
+    const hasSelectionMemosChanged = (): boolean => {
+        const original = pokepaste.selectionMemos || [];
+        const current = currentSelectionMemos;
+
+        if (original.length !== current.length) return true;
+
+        return JSON.stringify(original) !== JSON.stringify(current);
+    };
+
+    const handleClose = () => {
+        const hasUnsavedMemoChanges = memo !== (pokepaste.memo || "");
+        const hasUnsavedSelectionChanges = hasSelectionMemosChanged();
+
+        if (hasUnsavedMemoChanges || hasUnsavedSelectionChanges) {
+            const message = "保存されていない変更があります。閉じてもよろしいですか？";
+            if (!window.confirm(message)) {
+                return;
+            }
+        }
+        onClose();
+    };
+
     const handleCopyLink = async () => {
         try {
             await navigator.clipboard.writeText(pokepaste.url);
@@ -84,14 +125,41 @@ export const PokePasteDetailModal: React.FC<PokePasteDetailModalProps> = ({
         return `https://seiseikinkin.github.io/tools/image/minisprites/${imageName}.png`;
     };
 
+    // チームのポケモンリストを取得
+    const getTeamPokemon = (): string[] => {
+        if (pokepaste.pokemonTeam && pokepaste.pokemonTeam.length > 0) {
+            return pokepaste.pokemonTeam.map((p) => p.species);
+        }
+        return pokepaste.pokemonNames || [];
+    };
+
     return (
-        <div className="pokepaste-modal-overlay" onClick={onClose}>
+        <div className="pokepaste-modal-overlay" onClick={handleClose}>
             <div className="pokepaste-modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="pokepaste-modal-header">
-                    <h2>{pokepaste.title || "Untitled PokePaste"}</h2>
-                    <button className="pokepaste-modal-close" onClick={onClose}>
-                        ×
-                    </button>
+                    <div className="pokepaste-modal-header-content">
+                        <div className="pokepaste-modal-title-section">
+                            <div className="pokepaste-modal-header-pokemon">
+                                {getTeamPokemon().map((pokemon, idx) => (
+                                    <img
+                                        key={idx}
+                                        src={getPokemonImageUrl(pokemon)}
+                                        alt={pokemon}
+                                        className="header-pokemon-sprite"
+                                        title={pokemon}
+                                        onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            target.style.display = "none";
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                            <h2>{pokepaste.title || "Untitled PokePaste"}</h2>
+                        </div>
+                        <button className="pokepaste-modal-close" onClick={handleClose}>
+                            ×
+                        </button>
+                    </div>
                 </div>
 
                 <div className="pokepaste-modal-body">
@@ -253,7 +321,7 @@ export const PokePasteDetailModal: React.FC<PokePasteDetailModalProps> = ({
                                 className="memo-textarea"
                                 placeholder="チームについてのメモを入力..."
                                 value={memo}
-                                onChange={(e) => setMemo(e.target.value)}
+                                onChange={(e) => handleMemoChange(e.target.value)}
                                 rows={5}
                             />
                             <button className="memo-save-button" onClick={handleMemoSave} disabled={isSaving}>
@@ -263,14 +331,20 @@ export const PokePasteDetailModal: React.FC<PokePasteDetailModalProps> = ({
                     </div>
 
                     {/* 選出メモセクション */}
-                    <SelectionMemoSection currentPokepaste={pokepaste} allPokepastes={allPokepastes} onSave={handleSelectionMemosSave} />
+                    <SelectionMemoSection
+                        key={`${pokepaste.id}-${isOpen}`}
+                        currentPokepaste={pokepaste}
+                        allPokepastes={allPokepastes}
+                        onSave={handleSelectionMemosSave}
+                        onSelectionMemosChange={handleSelectionMemosChange}
+                    />
                 </div>
 
                 <div className="pokepaste-modal-footer">
                     <button className="modal-button secondary" onClick={handleCopyLink}>
                         🔗 リンクをコピー
                     </button>
-                    <button className="modal-button primary" onClick={onClose}>
+                    <button className="modal-button primary" onClick={handleClose}>
                         閉じる
                     </button>
                 </div>

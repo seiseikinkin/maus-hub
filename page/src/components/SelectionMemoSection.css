@@ -261,8 +261,9 @@
 /* 画像付き選択 */
 .pokemon-image-selects {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, auto);
     gap: 12px;
+    justify-content: start;
 }
 
 .pokemon-selects {

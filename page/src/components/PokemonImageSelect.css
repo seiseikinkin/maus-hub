@@ -1,20 +1,22 @@
 /* ポケモン画像選択ドロップダウン */
 .pokemon-image-select-wrapper {
     position: relative;
-    width: 100%;
+    width: auto;
+    min-width: 80px;
 }
 
 .pokemon-image-select-trigger {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
+    justify-content: center;
+    padding: 6px 8px;
     background-color: white;
     border: 1px solid #e0e0e0;
     border-radius: 6px;
     cursor: pointer;
     min-height: 40px;
     transition: border-color 0.2s;
+    gap: 4px;
 }
 
 [data-theme="dark"] .pokemon-image-select-trigger {
@@ -33,8 +35,7 @@
 .pokemon-image-select-selected {
     display: flex;
     align-items: center;
-    gap: 8px;
-    flex: 1;
+    justify-content: center;
 }
 
 .pokemon-image-select-selected span {
@@ -88,7 +89,6 @@
 }
 
 .dropdown-arrow {
-    margin-left: 8px;
     font-size: 0.7rem;
     color: #666;
     transition: transform 0.2s;
@@ -107,14 +107,16 @@
     position: absolute;
     top: calc(100% + 4px);
     left: 0;
-    right: 0;
-    max-height: 300px;
-    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px;
     background-color: white;
     border: 1px solid #e0e0e0;
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     z-index: 1000;
+    min-width: 370px;
 }
 
 [data-theme="dark"] .pokemon-image-select-dropdown {
@@ -126,10 +128,13 @@
 .pokemon-image-select-option {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
+    justify-content: center;
+    padding: 4px;
     cursor: pointer;
     transition: background-color 0.2s;
+    border-radius: 4px;
+    width: auto;
+    flex-shrink: 0;
 }
 
 .pokemon-image-select-option:hover {
@@ -160,6 +165,9 @@
 .pokemon-image-select-option.empty-option {
     font-style: italic;
     color: #999;
+    padding: 4px 8px;
+    width: auto;
+    min-width: 50px;
 }
 
 [data-theme="dark"] .pokemon-image-select-option.empty-option {

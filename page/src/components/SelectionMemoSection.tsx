@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { PokePasteData, SelectionMemo } from "../firebase/pokePasteService";
 import { StarRating } from "./StarRating";
 import { PokemonImageSelect } from "./PokemonImageSelect";
@@ -9,11 +9,24 @@ interface SelectionMemoSectionProps {
     currentPokepaste: PokePasteData;
     allPokepastes: PokePasteData[];
     onSave: (selectionMemos: SelectionMemo[]) => void;
+    onSelectionMemosChange?: (selectionMemos: SelectionMemo[]) => void;
 }
 
-export const SelectionMemoSection: React.FC<SelectionMemoSectionProps> = ({ currentPokepaste, allPokepastes, onSave }) => {
+export const SelectionMemoSection: React.FC<SelectionMemoSectionProps> = ({ currentPokepaste, allPokepastes, onSave, onSelectionMemosChange }) => {
     const [selectionMemos, setSelectionMemos] = useState<SelectionMemo[]>(currentPokepaste.selectionMemos || []);
     const [isSaving, setIsSaving] = useState(false);
+
+    // currentPokepasteが変更されたらselectionMemosをリセット
+    useEffect(() => {
+        setSelectionMemos(currentPokepaste.selectionMemos || []);
+    }, [currentPokepaste.id, currentPokepaste.selectionMemos]);
+
+    // selectionMemosが変更されたら親に通知
+    useEffect(() => {
+        if (onSelectionMemosChange) {
+            onSelectionMemosChange(selectionMemos);
+        }
+    }, [selectionMemos, onSelectionMemosChange]);
 
     // 現在のチームのポケモンリストを取得
     const getCurrentTeamPokemon = (): string[] => {

@@ -19,7 +19,7 @@
     border-radius: 12px;
     width: 100%;
     max-width: 1300px;
-    max-height: 90vh;
+    max-height: 96vh;
     display: flex;
     flex-direction: column;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -32,9 +32,6 @@
 
 /* ヘッダー */
 .pokepaste-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     padding: 20px 24px;
     border-bottom: 1px solid #e0e0e0;
 }
@@ -43,21 +40,51 @@
     border-bottom-color: #444;
 }
 
+.pokepaste-modal-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.pokepaste-modal-title-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
 .pokepaste-modal-header h2 {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--text-color, #333);
+    flex-shrink: 0;
 }
 
 [data-theme="dark"] .pokepaste-modal-header h2 {
     color: #e0e0e0;
 }
 
+.pokepaste-modal-header-pokemon {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.header-pokemon-sprite {
+    width: 40px;
+    height: 40px;
+    image-rendering: pixelated;
+    object-fit: contain;
+}
+
 .pokepaste-modal-close {
     background: none;
     border: none;
     font-size: 2rem;
+    flex-shrink: 0;
     cursor: pointer;
     color: #666;
     padding: 0;
