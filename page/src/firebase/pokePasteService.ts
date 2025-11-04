@@ -1,6 +1,24 @@
 import { collection, getDocs, query, orderBy, limit, where, doc, deleteDoc } from "firebase/firestore";
 import { db } from "./config";
 
+// 各ポケモンの詳細情報の型定義
+export interface PokemonData {
+    nickname: string | null;
+    species: string;
+    gender: string | null;
+    item: string | null;
+    ability: string | null;
+    level: number;
+    shiny: boolean;
+    happiness: number;
+    nature: string | null;
+    teraType: string | null;
+    evs: Record<string, number>;
+    ivs: Record<string, number>;
+    moves: string[];
+    rawText: string;
+}
+
 // PokePasteデータの型定義
 export interface PokePasteData {
     id: string;
@@ -10,6 +28,7 @@ export interface PokePasteData {
     userId: string;
     author?: string;
     pokemonNames?: string[];
+    pokemonTeam?: PokemonData[];
     rating?: number; // 1-5の評価
 }
 
@@ -26,6 +45,42 @@ export class PokePasteService {
                 userId: userId,
                 author: "TrainerAlice",
                 pokemonNames: ["Pikachu", "Charizard", "Blastoise"],
+                pokemonTeam: [
+                    {
+                        nickname: null,
+                        species: "Pikachu",
+                        gender: "M",
+                        item: "Light Ball",
+                        ability: "Static",
+                        level: 100,
+                        shiny: false,
+                        happiness: 255,
+                        nature: "Jolly",
+                        teraType: "Electric",
+                        evs: { hp: 0, atk: 252, def: 0, spa: 0, spd: 4, spe: 252 },
+                        ivs: {},
+                        moves: ["Volt Tackle", "Iron Tail", "Quick Attack", "Thunder Wave"],
+                        rawText:
+                            "Pikachu (M) @ Light Ball\nAbility: Static\nEVs: 252 Atk / 4 SpD / 252 Spe\nJolly Nature\n- Volt Tackle\n- Iron Tail\n- Quick Attack\n- Thunder Wave",
+                    },
+                    {
+                        nickname: null,
+                        species: "Charizard",
+                        gender: null,
+                        item: "Charizardite Y",
+                        ability: "Blaze",
+                        level: 100,
+                        shiny: false,
+                        happiness: 255,
+                        nature: "Timid",
+                        teraType: "Fire",
+                        evs: { hp: 0, atk: 0, def: 0, spa: 252, spd: 4, spe: 252 },
+                        ivs: {},
+                        moves: ["Fire Blast", "Solar Beam", "Roost", "Dragon Pulse"],
+                        rawText:
+                            "Charizard @ Charizardite Y\nAbility: Blaze\nEVs: 252 SpA / 4 SpD / 252 Spe\nTimid Nature\n- Fire Blast\n- Solar Beam\n- Roost\n- Dragon Pulse",
+                    },
+                ],
                 rating: 4,
             },
             {
@@ -36,6 +91,25 @@ export class PokePasteService {
                 userId: userId,
                 author: "TrainerBob",
                 pokemonNames: ["Venusaur", "Alakazam", "Machamp"],
+                pokemonTeam: [
+                    {
+                        nickname: null,
+                        species: "Venusaur",
+                        gender: "F",
+                        item: "Venusaurite",
+                        ability: "Overgrow",
+                        level: 100,
+                        shiny: false,
+                        happiness: 255,
+                        nature: "Bold",
+                        teraType: "Grass",
+                        evs: { hp: 252, atk: 0, def: 252, spa: 0, spd: 4, spe: 0 },
+                        ivs: {},
+                        moves: ["Giga Drain", "Sludge Bomb", "Synthesis", "Leech Seed"],
+                        rawText:
+                            "Venusaur (F) @ Venusaurite\nAbility: Overgrow\nEVs: 252 HP / 252 Def / 4 SpD\nBold Nature\n- Giga Drain\n- Sludge Bomb\n- Synthesis\n- Leech Seed",
+                    },
+                ],
                 rating: 3,
             },
         ];
