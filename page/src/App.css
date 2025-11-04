@@ -1578,6 +1578,293 @@ body {
     border: 1px solid var(--border-primary);
 }
 
+/* 1行ヘッダーレイアウト */
+.replay-list-header-single-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    box-shadow: var(--shadow-card);
+    flex-wrap: wrap;
+}
+
+.filter-input-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.pokemon-filter-input-compact {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: border-color 0.2s;
+}
+
+.pokemon-filter-input-compact:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.pokemon-filter-input-compact::placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.filter-checkbox-group {
+    display: flex;
+    align-items: center;
+    min-width: 120px;
+    flex-shrink: 0;
+}
+
+.checkbox-label-compact {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.checkbox-label-compact input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.add-replay-button-compact,
+.selection-button-compact,
+.refresh-button-compact {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.add-replay-button-compact:hover,
+.refresh-button-compact:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-blue);
+}
+
+.selection-button-compact {
+    background: var(--bg-secondary);
+}
+
+.selection-button-compact:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-red);
+}
+
+.selection-button-compact.active {
+    background: var(--accent-red);
+    color: var(--text-light);
+    border-color: var(--accent-red);
+}
+
+.selection-button-compact.active:hover {
+    background: var(--accent-red-hover);
+}
+
+.filter-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.filter-count {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.clear-filter-button {
+    padding: 0.25rem 0.75rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.clear-filter-button:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-blue);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 1200px) {
+    .replay-list-header-single-row {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .filter-input-group {
+        min-width: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+    .replay-list-header-single-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .filter-input-group {
+        min-width: unset;
+    }
+
+    .header-controls {
+        justify-content: space-between;
+    }
+
+    .add-replay-button-compact,
+    .selection-button-compact,
+    .refresh-button-compact {
+        flex: 1;
+        text-align: center;
+    }
+}
+
+/* 旧スタイルも保持（既存の古いコンポーネント用） */
+.pokemon-filter-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-card);
+}
+
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.pokemon-filter-input {
+    padding: 0.5rem;
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: border-color 0.2s;
+}
+
+.pokemon-filter-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.pokemon-filter-input::placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.filter-options {
+    display: flex;
+    align-items: center;
+    min-width: 180px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.filter-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-secondary);
+}
+
+.clear-filter-button:hover {
+    background: var(--bg-hover);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-group {
+        min-width: auto;
+    }
+
+    .filter-info {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+
+    .clear-filter-button {
+        align-self: center;
+    }
+}
+
 .error-content {
     text-align: center;
     padding: 2rem;
@@ -1832,12 +2119,264 @@ body {
     margin-bottom: 2rem;
     padding-bottom: 1rem;
     border-bottom: 2px solid var(--border-primary);
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .analysis-header h1 {
     margin: 0;
     color: var(--text-primary);
     font-size: 2rem;
+}
+
+.filter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.filter-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.format-selector,
+.team-selector {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    min-width: 200px;
+    cursor: pointer;
+}
+
+.format-selector:focus,
+.team-selector:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.selected-team-display {
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.selected-team-display h3 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.125rem;
+}
+
+.team-pokemon-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.team-pokemon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.team-filter-pokemon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.pokemon-name-small {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-align: center;
+    max-width: 60px;
+    word-break: break-word;
+    line-height: 1.2;
+}
+
+/* カスタムチームドロップダウン */
+.custom-team-dropdown {
+    position: relative;
+    min-width: 300px;
+}
+
+.team-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.team-dropdown-trigger:hover {
+    border-color: var(--primary-color);
+}
+
+.team-dropdown-trigger:focus-within {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.selected-team-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.team-pokemon-preview {
+    display: flex;
+    gap: 2px;
+}
+
+.dropdown-pokemon-mini {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.all-teams-text {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+.team-usage-count {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-left: auto;
+}
+
+.dropdown-arrow {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    transition: transform 0.2s;
+    margin-left: 0.5rem;
+}
+
+.dropdown-arrow.open {
+    transform: rotate(180deg);
+}
+
+.team-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.team-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid var(--border-secondary);
+}
+
+.team-dropdown-item:hover {
+    background: var(--bg-hover);
+}
+
+.team-dropdown-item.selected {
+    background: rgba(74, 144, 226, 0.1);
+    border-left: 3px solid var(--primary-color);
+}
+
+.team-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.all-teams-option {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.team-pokemon-row {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+}
+
+.dropdown-pokemon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.team-usage-info {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-left: 0.75rem;
+    white-space: nowrap;
+}
+
+/* ドロップダウンメニューのスクロールバー */
+.team-dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.team-dropdown-menu::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.team-dropdown-menu::-webkit-scrollbar-thumb {
+    background: var(--border-primary);
+    border-radius: 3px;
+}
+
+.team-dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .custom-team-dropdown {
+        min-width: 250px;
+    }
+
+    .dropdown-pokemon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .dropdown-pokemon-mini {
+        width: 18px;
+        height: 18px;
+    }
+
+    .team-dropdown-item {
+        padding: 0.5rem;
+    }
 }
 
 .stats-overview {
@@ -2252,6 +2791,22 @@ body {
     min-width: 0;
 }
 
+/* チェックボックスセクション */
+.replay-checkbox-section {
+    flex: 0 0 30px;
+    min-width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.selection-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    margin: 0;
+}
+
 /* 勝敗セクション */
 .replay-status-section {
     flex: 0 0 60px;
@@ -2288,7 +2843,7 @@ body {
 /* アクションセクション */
 .replay-actions-section {
     flex: 0 0 60px;
-    min-width: 60px;
+    min-width: 90px;
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -2312,6 +2867,13 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.replay-players-section .replay-players:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
 }
 
 /* ポケモン行のスタイル */
@@ -2615,6 +3177,153 @@ body {
     }
 }
 
+/* 相手の選出組み合わせ分析スタイル */
+.opponent-selection-analysis-section {
+    margin-top: 3rem;
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--shadow-card);
+}
+
+.opponent-selection-analysis-section h2 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+    text-align: center;
+}
+
+.section-description {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.selection-combinations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.combination-card {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-primary);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.combination-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.combination-pokemon {
+    margin-bottom: 1rem;
+}
+
+.pokemon-pair {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.pokemon-with-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.combination-pokemon-image {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.pokemon-position {
+    font-size: 0.75rem;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.combination-plus {
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    font-weight: bold;
+    margin: 0 0.5rem;
+}
+
+.combination-stats {
+    border-top: 1px solid var(--border-secondary);
+    padding-top: 1rem;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.stat-row.small {
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.stat-value.winrate.high {
+    color: #ef4444; /* 相手の勝率が高い = 自分にとって危険 */
+}
+
+.stat-value.winrate.medium {
+    color: #f59e0b; /* 中程度 */
+}
+
+.stat-value.winrate.low {
+    color: #10b981; /* 相手の勝率が低い = 自分にとって有利 */
+}
+
+.no-selection-data {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem;
+}
+
+.no-selection-data p {
+    margin: 0.5rem 0;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .selection-combinations-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pokemon-pair {
+        gap: 0.5rem;
+    }
+
+    .combination-pokemon-image {
+        width: 40px;
+        height: 40px;
+    }
+}
+
 /* 相手の傾向分析スタイル */
 .opponent-trends-section {
     margin-top: 3rem;
@@ -2629,6 +3338,19 @@ body {
     margin-bottom: 2rem;
     font-size: 1.8rem;
     text-align: center;
+}
+
+.filter-applied-indicator {
+    font-size: 0.875rem;
+    color: var(--primary-color);
+    font-weight: normal;
+}
+
+.no-trend-data {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin: 1rem 0;
 }
 
 .trends-container {
@@ -2835,5 +3557,218 @@ body {
     .pokepaste-date-section {
         flex: 0 0 150px;
         min-width: 150px;
+    }
+}
+
+/* バッチ削除関連スタイル */
+.batch-delete-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border-primary);
+}
+
+.batch-delete-controls button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.batch-delete-controls .btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.batch-delete-controls .btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.batch-delete-controls .btn-secondary {
+    background: var(--bg-button);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+}
+
+.batch-delete-controls .btn-secondary:hover {
+    background: var(--bg-hover);
+}
+
+.batch-delete-controls .btn-danger {
+    background: var(--danger-color);
+    color: white;
+}
+
+.batch-delete-controls .btn-danger:hover {
+    background: var(--danger-hover);
+}
+
+.batch-delete-controls .btn-danger:disabled {
+    background: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.batch-delete-info {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.batch-delete-info strong {
+    color: var(--text-primary);
+}
+
+/* ページネーション */
+.pagination-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem 0;
+    margin-top: 1rem;
+    border-top: 1px solid var(--border-secondary);
+    flex-wrap: wrap;
+}
+
+.pagination-button {
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 40px;
+    text-align: center;
+}
+
+.pagination-button:hover:not(:disabled) {
+    background: var(--bg-hover);
+    border-color: var(--accent-blue);
+    transform: translateY(-1px);
+}
+
+.pagination-button.active {
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border-color: var(--accent-blue);
+    font-weight: 600;
+}
+
+.pagination-button:disabled {
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.pagination-ellipsis {
+    padding: 0.5rem 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    user-select: none;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .pagination {
+        gap: 0.25rem;
+        padding: 1rem 0;
+    }
+
+    .pagination-button {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.75rem;
+        min-width: 36px;
+    }
+
+    .pagination-ellipsis {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* PokePasteマッチング表示 */
+.matched-pokepaste {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 6px;
+    border-left: 4px solid var(--accent-green);
+}
+
+.pokepaste-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.pokepaste-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.pokepaste-link {
+    color: var(--accent-blue);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+}
+
+.pokepaste-link:hover {
+    color: var(--accent-blue-hover);
+    text-decoration: underline;
+}
+
+.no-pokepaste-match {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 6px;
+    border-left: 4px solid var(--text-muted);
+}
+
+.no-match-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .pokepaste-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .pokepaste-link {
+        word-break: break-all;
     }
 }

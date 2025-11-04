@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ReplayItem } from './ReplayItem';
+import { ReplayDetailsModal } from './ReplayDetailsModal';
 import { replayService, type ReplayData } from '../firebase/replayService';
 import { settingsService } from '../firebase/settingsService';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,6 +14,21 @@ export const ReplayList: React.FC = () => {
     const [addingReplay, setAddingReplay] = useState(false);
     const [userPlayerName, setUserPlayerName] = useState<string>('');
     const [userPlayerNames, setUserPlayerNames] = useState<string[]>([]);
+    const [selectedReplay, setSelectedReplay] = useState<ReplayData | null>(null);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [isSelectionMode, setIsSelectionMode] = useState(false);
+    const [selectedReplays, setSelectedReplays] = useState<Set<string>>(new Set());
+    const [deletingReplays, setDeletingReplays] = useState(false);
+    
+    // フィルター関連の状態
+    const [myPokemonFilter, setMyPokemonFilter] = useState<string>('');
+    const [opponentPokemonFilter, setOpponentPokemonFilter] = useState<string>('');
+    const [onlySelectedPokemon, setOnlySelectedPokemon] = useState(false);
+    
+    // ページング関連の状態
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 150;
+    
     const { user } = useAuth();
 
     const loadUserSettings = useCallback(async () => {
@@ -38,7 +54,8 @@ export const ReplayList: React.FC = () => {
             setLoading(true);
             setError(null);
 
-            const fetchedReplays = await replayService.getReplaysByUser(user.uid);
+            // 十分に大きな制限値を設定（クライアント側でページングするため）
+            const fetchedReplays = await replayService.getReplaysByUser(user.uid, 10000);
             setReplays(fetchedReplays);
         } catch (err) {
             console.error('Error loading replays:', err);
@@ -53,6 +70,11 @@ export const ReplayList: React.FC = () => {
         loadUserSettings();
     }, [loadReplays, loadUserSettings]);
 
+    // フィルターが変更された時はページを1に戻す
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [myPokemonFilter, opponentPokemonFilter, onlySelectedPokemon]);
+
     const handleRefresh = () => {
         loadReplays();
     };
@@ -65,6 +87,87 @@ export const ReplayList: React.FC = () => {
         } catch (err) {
             console.error('Error deleting replay:', err);
             alert('リプレイの削除に失敗しました');
+        }
+    };
+
+    const handleShowDetails = (replay: ReplayData) => {
+        setSelectedReplay(replay);
+        setShowDetailsModal(true);
+    };
+
+    const handleCloseDetailsModal = () => {
+        setShowDetailsModal(false);
+        setSelectedReplay(null);
+    };
+
+    // 選択削除機能のハンドラー
+    const handleToggleSelectionMode = () => {
+        setIsSelectionMode(!isSelectionMode);
+        setSelectedReplays(new Set()); // 選択をクリア
+    };
+
+    const handleSelectReplay = (replayId: string, isSelected: boolean) => {
+        const newSelected = new Set(selectedReplays);
+        if (isSelected) {
+            newSelected.add(replayId);
+        } else {
+            newSelected.delete(replayId);
+        }
+        setSelectedReplays(newSelected);
+    };
+
+    const handleSelectAll = () => {
+        const currentPageIds = new Set(currentPageReplays.map(replay => replay.id));
+        
+        // 現在のページのリプレイが全て選択されているかチェック
+        const allCurrentPageSelected = currentPageReplays.every(replay => selectedReplays.has(replay.id));
+        
+        if (allCurrentPageSelected) {
+            // 現在のページのリプレイが全て選択されている場合は、それらを解除
+            const newSelected = new Set(selectedReplays);
+            currentPageIds.forEach(id => newSelected.delete(id));
+            setSelectedReplays(newSelected);
+        } else {
+            // 現在のページのリプレイを全て選択
+            const newSelected = new Set(selectedReplays);
+            currentPageIds.forEach(id => newSelected.add(id));
+            setSelectedReplays(newSelected);
+        }
+    };
+
+    const handleDeleteSelected = async () => {
+        if (selectedReplays.size === 0) {
+            alert('削除するリプレイを選択してください。');
+            return;
+        }
+
+        const confirmMessage = `選択した${selectedReplays.size}件のリプレイを削除しますか？`;
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        setDeletingReplays(true);
+        try {
+            // 選択されたリプレイを順次削除
+            const deletePromises = Array.from(selectedReplays).map(id => 
+                replayService.deleteReplay(id)
+            );
+            
+            await Promise.all(deletePromises);
+            
+            // 選択をクリアして選択モードを終了
+            setSelectedReplays(new Set());
+            setIsSelectionMode(false);
+            
+            // リストを再読み込み
+            await loadReplays();
+            
+            alert(`${selectedReplays.size}件のリプレイを削除しました。`);
+        } catch (err) {
+            console.error('Error deleting selected replays:', err);
+            alert('リプレイの削除中にエラーが発生しました。');
+        } finally {
+            setDeletingReplays(false);
         }
     };
 
@@ -113,9 +216,14 @@ export const ReplayList: React.FC = () => {
                     // ポケモン情報の抽出: |poke|p1|Pokemon|... または |poke|p2|Pokemon|...
                     if (line.startsWith('|poke|')) {
                         const parts = line.split('|');
+                        console.log(`DEBUG: Processing poke line: "${line}"`);
+                        console.log(`DEBUG: Split parts:`, parts);
+                        
                         if (parts.length >= 4) {
                             const playerSide = parts[2]; // p1 または p2
                             const pokemonInfo = parts[3]; // Pokemon名（例: "Gastrodon-East, L50, M"）
+                            
+                            console.log(`DEBUG: Player side: "${playerSide}", Pokemon info: "${pokemonInfo}"`);
                             
                             // ポケモン名を正規化
                             let pokemonName = pokemonInfo;
@@ -127,9 +235,12 @@ export const ReplayList: React.FC = () => {
                                 pokemonName = pokemonName.trim();
                             }
                             
+                            console.log(`DEBUG: Normalized Pokemon name: "${pokemonName}"`);
+                            
                             // 空文字やレベル情報などの無効な名前をスキップ
-                            if (!pokemonName || pokemonName.startsWith('L') || /^[0-9]/.test(pokemonName)) {
-                                console.log(`Skipping invalid Pokemon name: "${pokemonName}"`);
+                            // L + 数字（例：L50）やその他の無効なパターンをスキップ
+                            if (!pokemonName || /^L\d+/.test(pokemonName) || /^[0-9]/.test(pokemonName)) {
+                                console.log(`DEBUG: Skipping invalid Pokemon name: "${pokemonName}"`);
                                 return;
                             }
                             
@@ -141,9 +252,13 @@ export const ReplayList: React.FC = () => {
                                 playerName = players[1];
                             }
                             
+                            console.log(`DEBUG: Mapped to player: "${playerName}"`);
+                            
                             if (playerName && pokemonName && !teams[playerName].includes(pokemonName)) {
                                 teams[playerName].push(pokemonName);
-                                console.log(`Found Pokemon: ${pokemonName} for player ${playerName} (${playerSide})`);
+                                console.log(`DEBUG: Added Pokemon: ${pokemonName} for player ${playerName} (${playerSide})`);
+                            } else {
+                                console.log(`DEBUG: Skipped adding - playerName: ${playerName}, pokemonName: ${pokemonName}, already exists: ${playerName && teams[playerName] && teams[playerName].includes(pokemonName)}`);
                             }
                         }
                     }
@@ -376,22 +491,142 @@ export const ReplayList: React.FC = () => {
         );
     }
 
+    // ポケモンフィルタリング関数
+    const filterReplaysByPokemon = (replays: ReplayData[]) => {
+        return replays.filter(replay => {
+            // 自分のプレイヤー名を特定
+            const myPlayer = userPlayerNames.find(playerName => 
+                replay.players.includes(playerName)
+            );
+            
+            if (!myPlayer) return true; // プレイヤー名が見つからない場合はフィルターしない
+
+            // 相手のプレイヤー名を特定
+            const opponentPlayer = replay.players.find(player => player !== myPlayer);
+            
+            // 自分のポケモンフィルター
+            if (myPokemonFilter.trim()) {
+                const myPokemonList = myPokemonFilter.split(',').map(name => name.trim().toLowerCase()).filter(name => name);
+                const myTeam = replay.teams[myPlayer] || [];
+                const mySelected = replay.selectedPokemon?.[myPlayer] || [];
+                
+                // 検索対象を決定（選出のみチェックがONの場合は選出のみ、OFFの場合はチーム全体）
+                const searchTarget = onlySelectedPokemon ? mySelected : myTeam;
+                
+                // AND条件：すべてのポケモンが含まれているかチェック
+                const hasAllPokemon = myPokemonList.every(filterPokemon => 
+                    searchTarget.some(pokemon => pokemon.toLowerCase().includes(filterPokemon))
+                );
+                
+                if (!hasAllPokemon) return false;
+            }
+            
+            // 相手のポケモンフィルター
+            if (opponentPokemonFilter.trim() && opponentPlayer) {
+                const opponentPokemonList = opponentPokemonFilter.split(',').map(name => name.trim().toLowerCase()).filter(name => name);
+                const opponentTeam = replay.teams[opponentPlayer] || [];
+                const opponentSelected = replay.selectedPokemon?.[opponentPlayer] || [];
+                
+                // 検索対象を決定（選出のみチェックがONの場合は選出のみ、OFFの場合はチーム全体）
+                const searchTarget = onlySelectedPokemon ? opponentSelected : opponentTeam;
+                
+                // AND条件：すべてのポケモンが含まれているかチェック
+                const hasAllPokemon = opponentPokemonList.every(filterPokemon => 
+                    searchTarget.some(pokemon => pokemon.toLowerCase().includes(filterPokemon))
+                );
+                
+                if (!hasAllPokemon) return false;
+            }
+            
+            return true;
+        });
+    };
+
+    // フィルター適用後のリプレイリスト
+    const filteredReplays = filterReplaysByPokemon(replays);
+    
+    // ページング計算
+    const totalPages = Math.ceil(filteredReplays.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const currentPageReplays = filteredReplays.slice(startIndex, endIndex);
+    
+    // ページ変更ハンドラー
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        // ページ変更時に画面上部にスクロール
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
         <div className="replay-list">
-            <div className="replay-list-header">
-                <h2></h2>
-                <div className="controls">
+            {/* 1行ヘッダー */}
+            <div className="replay-list-header-single-row">
+                <div className="filter-input-group">
+                    <input
+                        type="text"
+                        value={myPokemonFilter}
+                        onChange={(e) => setMyPokemonFilter(e.target.value)}
+                        placeholder="自分のポケモン (すべて含む例: Pika, Char)"
+                        className="pokemon-filter-input-compact"
+                    />
+                </div>
+                <div className="filter-input-group">
+                    <input
+                        type="text"
+                        value={opponentPokemonFilter}
+                        onChange={(e) => setOpponentPokemonFilter(e.target.value)}
+                        placeholder="相手のポケモン (すべて含む例: Garc, Meta)"
+                        className="pokemon-filter-input-compact"
+                    />
+                </div>
+                <div className="filter-checkbox-group">
+                    <label className="checkbox-label-compact">
+                        <input
+                            type="checkbox"
+                            checked={onlySelectedPokemon}
+                            onChange={(e) => setOnlySelectedPokemon(e.target.checked)}
+                        />
+                        選出のみ
+                    </label>
+                </div>
+                <div className="header-controls">
                     <button 
                         onClick={() => setShowAddForm(!showAddForm)} 
-                        className="add-replay-button"
+                        className="add-replay-button-compact"
                     >
-                        📝 URLから追加
+                        URLから追加
                     </button>
-                    <button onClick={handleRefresh} className="refresh-button">
+                    <button 
+                        onClick={handleToggleSelectionMode} 
+                        className={`selection-button-compact ${isSelectionMode ? 'active' : ''}`}
+                    >
+                        {isSelectionMode ? '選択終了' : '選択削除'}
+                    </button>
+                    <button onClick={handleRefresh} className="refresh-button-compact">
                         🔄
                     </button>
                 </div>
             </div>
+
+            {/* フィルター情報行 */}
+            {(myPokemonFilter || opponentPokemonFilter) && (
+                <div className="filter-info-row">
+                    <span className="filter-count">
+                        {filteredReplays.length}/{replays.length} 件のリプレイを表示中
+                    </span>
+                    <button 
+                        onClick={() => {
+                            setMyPokemonFilter('');
+                            setOpponentPokemonFilter('');
+                            setOnlySelectedPokemon(false);
+                        }}
+                        className="clear-filter-button"
+                    >
+                        フィルタークリア
+                    </button>
+                </div>
+            )}
 
             {/* URL入力フォーム */}
             {showAddForm && (
@@ -439,9 +674,46 @@ export const ReplayList: React.FC = () => {
                 </div>
             )}
 
-            <div className="replay-count">
-                {replays.length} 件のリプレイ
-            </div>
+            {/* 選択モード時のコントロール */}
+            {isSelectionMode && (
+                <div className="batch-delete-controls">
+                    <div className="batch-delete-info">
+                        <strong>{selectedReplays.size}件</strong> 選択中
+                    </div>
+                    <button 
+                        onClick={handleSelectAll}
+                        className="btn btn-secondary"
+                    >
+                        {(() => {
+                            const allCurrentPageSelected = currentPageReplays.every(replay => selectedReplays.has(replay.id));
+                            return allCurrentPageSelected ? 'ページ内全て解除' : 'ページ内全て選択';
+                        })()}
+                    </button>
+                    <button 
+                        onClick={handleDeleteSelected}
+                        disabled={selectedReplays.size === 0 || deletingReplays}
+                        className="btn btn-danger"
+                    >
+                        {deletingReplays ? '削除中...' : `選択した${selectedReplays.size}件を削除`}
+                    </button>
+                    <button 
+                        onClick={() => setIsSelectionMode(false)}
+                        className="btn btn-secondary"
+                    >
+                        キャンセル
+                    </button>
+                </div>
+            )}
+
+            {/* ページング情報 */}
+            {filteredReplays.length > 0 && (
+                <div className="pagination-info">
+                    <span>
+                        {startIndex + 1}-{Math.min(endIndex, filteredReplays.length)} 件 / {filteredReplays.length} 件中
+                        {totalPages > 1 && ` (ページ ${currentPage} / ${totalPages})`}
+                    </span>
+                </div>
+            )}
 
             <div className="replay-items">
                 {replays.length === 0 ? (
@@ -449,18 +721,119 @@ export const ReplayList: React.FC = () => {
                         <p>保存されたリプレイがありません。</p>
                         <p>Pokemon Showdownのリプレイページで「リプレイを追加」ボタンを使用してリプレイを保存してください。</p>
                     </div>
+                ) : filteredReplays.length === 0 ? (
+                    <div className="no-replays">
+                        <p>フィルター条件に一致するリプレイが見つかりませんでした。</p>
+                        <p>フィルター条件を変更してお試しください。</p>
+                    </div>
                 ) : (
-                    replays.map((replay) => (
+                    currentPageReplays.map((replay) => (
                         <ReplayItem 
                             key={replay.id} 
                             replay={replay} 
-                            onDelete={handleDelete} 
+                            onDelete={handleDelete}
+                            onShowDetails={handleShowDetails}
                             userPlayerName={userPlayerName}
                             userPlayerNames={userPlayerNames}
+                            isSelectionMode={isSelectionMode}
+                            isSelected={selectedReplays.has(replay.id)}
+                            onSelect={handleSelectReplay}
                         />
                     ))
                 )}
             </div>
+
+            {/* ページネーション */}
+            {totalPages > 1 && (
+                <div className="pagination">
+                    <button 
+                        onClick={() => handlePageChange(1)}
+                        disabled={currentPage === 1}
+                        className="pagination-button"
+                    >
+                        最初
+                    </button>
+                    <button 
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="pagination-button"
+                    >
+                        前へ
+                    </button>
+                    
+                    {/* ページ番号ボタン */}
+                    {(() => {
+                        const pages = [];
+                        const maxVisiblePages = 5;
+                        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                        
+                        // 表示ページ数を調整
+                        if (endPage - startPage + 1 < maxVisiblePages) {
+                            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                        }
+                        
+                        // 最初のページから離れている場合は "..." を表示
+                        if (startPage > 1) {
+                            pages.push(
+                                <button key={1} onClick={() => handlePageChange(1)} className="pagination-button">1</button>
+                            );
+                            if (startPage > 2) {
+                                pages.push(<span key="start-ellipsis" className="pagination-ellipsis">...</span>);
+                            }
+                        }
+                        
+                        // ページ番号ボタンを生成
+                        for (let i = startPage; i <= endPage; i++) {
+                            pages.push(
+                                <button
+                                    key={i}
+                                    onClick={() => handlePageChange(i)}
+                                    className={`pagination-button ${i === currentPage ? 'active' : ''}`}
+                                >
+                                    {i}
+                                </button>
+                            );
+                        }
+                        
+                        // 最後のページから離れている場合は "..." を表示
+                        if (endPage < totalPages) {
+                            if (endPage < totalPages - 1) {
+                                pages.push(<span key="end-ellipsis" className="pagination-ellipsis">...</span>);
+                            }
+                            pages.push(
+                                <button key={totalPages} onClick={() => handlePageChange(totalPages)} className="pagination-button">
+                                    {totalPages}
+                                </button>
+                            );
+                        }
+                        
+                        return pages;
+                    })()}
+                    
+                    <button 
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="pagination-button"
+                    >
+                        次へ
+                    </button>
+                    <button 
+                        onClick={() => handlePageChange(totalPages)}
+                        disabled={currentPage === totalPages}
+                        className="pagination-button"
+                    >
+                        最後
+                    </button>
+                </div>
+            )}
+
+            {/* リプレイ詳細モーダル */}
+            <ReplayDetailsModal 
+                replay={selectedReplay}
+                isOpen={showDetailsModal}
+                onClose={handleCloseDetailsModal}
+            />
         </div>
     );
 };

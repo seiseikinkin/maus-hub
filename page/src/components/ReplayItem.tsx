@@ -4,19 +4,42 @@ import type { ReplayData } from '../firebase/replayService';
 interface ReplayItemProps {
     replay: ReplayData;
     onDelete?: (id: string) => void;
+    onShowDetails?: (replay: ReplayData) => void;
     userPlayerName?: string;
     userPlayerNames?: string[];
+    isSelectionMode?: boolean;
+    isSelected?: boolean;
+    onSelect?: (replayId: string, isSelected: boolean) => void;
 }
 
-export const ReplayItem: React.FC<ReplayItemProps> = ({ replay, onDelete, userPlayerName, userPlayerNames }) => {
-    const handleOpenUrl = () => {
-        window.open(replay.url, '_blank');
-    };
-
+export const ReplayItem: React.FC<ReplayItemProps> = ({ 
+    replay, 
+    onDelete, 
+    onShowDetails, 
+    userPlayerName, 
+    userPlayerNames,
+    isSelectionMode = false,
+    isSelected = false,
+    onSelect
+}) => {
     const handleDelete = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (onDelete && window.confirm('このリプレイを削除しますか？')) {
             onDelete(replay.id);
+        }
+    };
+
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        e.stopPropagation();
+        if (onSelect) {
+            onSelect(replay.id, e.target.checked);
+        }
+    };
+
+    const handleShowDetails = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (onShowDetails) {
+            onShowDetails(replay);
         }
     };
 
@@ -123,7 +146,19 @@ export const ReplayItem: React.FC<ReplayItemProps> = ({ replay, onDelete, userPl
     };
 
     return (
-        <div className="replay-item-single-line" onClick={handleOpenUrl}>
+        <div className="replay-item-single-line">
+            {/* チェックボックスセクション（選択モード時のみ） */}
+            {isSelectionMode && (
+                <div className="replay-checkbox-section">
+                    <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={handleCheckboxChange}
+                        className="selection-checkbox"
+                    />
+                </div>
+            )}
+            
             {/* 勝敗セクション */}
             <div className="replay-status-section">
                 {getWinLossDisplay()}
@@ -131,9 +166,15 @@ export const ReplayItem: React.FC<ReplayItemProps> = ({ replay, onDelete, userPl
             
             {/* プレイヤーセクション */}
             <div className="replay-players-section">
-                <span className="replay-players">
+                <a 
+                    href={replay.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="replay-players"
+                    onClick={(e) => e.stopPropagation()}
+                >
                     {getOrderedPlayers().join(' vs. ')}
-                </span>
+                </a>
             </div>
             
             {/* ポケモンセクション（チーム情報） */}
@@ -223,6 +264,15 @@ export const ReplayItem: React.FC<ReplayItemProps> = ({ replay, onDelete, userPl
             
             {/* アクションセクション */}
             <div className="replay-actions-section">
+                {onShowDetails && (
+                    <button 
+                        className="details-button"
+                        onClick={handleShowDetails}
+                        title="詳細"
+                    >
+                        📋
+                    </button>
+                )}
                 {onDelete && (
                     <button 
                         className="delete-button"

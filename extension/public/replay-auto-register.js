@@ -721,7 +721,8 @@ class ReplayAutoRegister {
                             }
 
                             // 空文字やレベル情報などの無効な名前をスキップ
-                            if (!pokemonName || pokemonName.startsWith("L") || /^[0-9]/.test(pokemonName)) {
+                            // L + 数字（例：L50）やその他の無効なパターンをスキップ
+                            if (!pokemonName || /^L\d+/.test(pokemonName) || /^[0-9]/.test(pokemonName)) {
                                 console.log(`Maus Hub: 無効なポケモン名をスキップ: "${pokemonName}"`);
                                 return;
                             }
