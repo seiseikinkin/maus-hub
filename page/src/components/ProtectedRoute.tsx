@@ -10,7 +10,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const { isAuthenticated, loading, user } = useAuth();
 
     if (import.meta.env.DEV) {
-        console.log("ProtectedRoute - loading:", loading, "isAuthenticated:", isAuthenticated, "user:", user?.email || "No user");
+        console.log("ProtectedRoute - loading:", loading, "isAuthenticated:", isAuthenticated, "user:", user ? "logged in" : "No user");
     }
 
     // 認証状態を確認中

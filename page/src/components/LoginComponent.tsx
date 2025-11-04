@@ -27,8 +27,8 @@ export const LoginComponent: React.FC = () => {
 
             if (error instanceof Error) {
                 if (error.message.startsWith("UNAUTHORIZED_EMAIL:")) {
-                    const email = error.message.split(":")[1];
-                    errorMessage = `申し訳ございませんが、メールアドレス「${email}」はこのアプリケーションの利用を許可されていません。アクセス権限が必要な場合は、管理者にお問い合わせください。`;
+                    errorMessage =
+                        "申し訳ございませんが、お使いのアカウントはこのアプリケーションの利用を許可されていません。アクセス権限が必要な場合は、管理者にお問い合わせください。";
                 } else if (error.message === "NO_EMAIL_FOUND") {
                     errorMessage = "Googleアカウントからメールアドレスを取得できませんでした。アカウントの設定をご確認ください。";
                 } else if (error.message.includes("popup-closed-by-user")) {

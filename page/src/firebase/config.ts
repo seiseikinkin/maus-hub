@@ -40,8 +40,7 @@ googleProviderRedirect.addScope("profile");
 googleProviderRedirect.addScope("email");
 googleProviderRedirect.setCustomParameters({
     prompt: "select_account",
-    ux_mode: "redirect",
-    access_type: "online",
+    // Safari対策: ux_modeを削除してデフォルト動作に任せる
 });
 
 export default app;
