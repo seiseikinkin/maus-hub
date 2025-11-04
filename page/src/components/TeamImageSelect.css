@@ -35,12 +35,15 @@
     align-items: center;
     gap: 12px;
     flex: 1;
+    min-width: 0; /* flexboxでの縮小を許可 */
+    overflow: hidden; /* はみ出しを防ぐ */
 }
 
 .team-pokemon-preview {
     display: flex;
     gap: 2px;
     align-items: center;
+    flex-shrink: 0; /* ポケモン画像は縮小しない */
 }
 
 .team-title {
@@ -48,6 +51,10 @@
     font-size: 0.95rem;
     font-weight: 500;
     flex: 1;
+    min-width: 0; /* テキストの収縮を許可 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .team-image-select-placeholder {
@@ -163,6 +170,8 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0; /* flexboxでの縮小を許可 */
+    overflow: hidden;
 }
 
 .team-option-title {
@@ -170,6 +179,10 @@
     font-size: 0.95rem;
     font-weight: 500;
     flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 [data-theme="dark"] .team-option-title {
@@ -180,6 +193,7 @@
     display: flex;
     gap: 2px;
     align-items: center;
+    flex-shrink: 0; /* ポケモン画像は縮小しない */
 }
 
 .team-image-select-option.empty-option {

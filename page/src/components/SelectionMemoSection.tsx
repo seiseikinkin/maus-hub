@@ -113,9 +113,6 @@ export const SelectionMemoSection: React.FC<SelectionMemoSectionProps> = ({ curr
         <div className="selection-memo-section">
             <div className="selection-memo-header">
                 <h3>選出メモ</h3>
-                <button className="add-memo-button" onClick={handleAddMemo}>
-                    ＋ 選出メモを追加
-                </button>
             </div>
 
             {selectionMemos.length === 0 ? (
@@ -199,9 +196,14 @@ export const SelectionMemoSection: React.FC<SelectionMemoSectionProps> = ({ curr
                 </div>
             )}
 
-            <button className="save-selection-memos-button" onClick={handleSave} disabled={isSaving}>
-                {isSaving ? "保存中..." : "選出メモを保存"}
-            </button>
+            <div className="selection-memo-footer">
+                <button className="add-memo-button" onClick={handleAddMemo}>
+                    ＋ 選出メモを追加
+                </button>
+                <button className="save-selection-memos-button" onClick={handleSave} disabled={isSaving}>
+                    {isSaving ? "保存中..." : "選出メモを保存"}
+                </button>
+            </div>
         </div>
     );
 };
