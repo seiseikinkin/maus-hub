@@ -11,9 +11,11 @@ export class AuthService {
             if (this.shouldUseRedirect()) {
                 if (import.meta.env.DEV) {
                     console.log("Using redirect authentication method for mobile");
+                    console.log("Current URL:", window.location.href);
                 }
                 await signInWithRedirect(auth, googleProviderRedirect);
-                return null; // リダイレクト後に結果を取得
+                // リダイレクト開始（結果は次回ページロード時に取得）
+                return null;
             }
 
             // デスクトップでは常にポップアップ方式を使用
@@ -45,13 +47,30 @@ export class AuthService {
     // リダイレクト後の結果を処理
     async handleRedirectResult(): Promise<User | null> {
         try {
+            if (import.meta.env.DEV) {
+                console.log("Getting redirect result...");
+            }
+
             const result = await getRedirectResult(auth);
+
             if (result?.user) {
+                if (import.meta.env.DEV) {
+                    console.log("Redirect result found:", result.user.email);
+                }
                 return await this.validateAndProcessUser(result.user);
+            }
+
+            if (import.meta.env.DEV) {
+                console.log("No redirect result found");
             }
             return null;
         } catch (error) {
             console.error("Redirect result error:", error);
+            // エラーの詳細をログに出力
+            if (error instanceof Error) {
+                console.error("Error message:", error.message);
+                console.error("Error stack:", error.stack);
+            }
             throw error;
         }
     }

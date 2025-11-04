@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { authService } from '../firebase/authService';
-import type { User } from 'firebase/auth';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { authService } from "../firebase/authService";
+import type { User } from "firebase/auth";
 
 interface AuthContextType {
     user: User | null;
@@ -19,7 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
+        throw new Error("useAuth must be used within an AuthProvider");
     }
     return context;
 };
@@ -33,33 +33,64 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // リダイレクト結果をチェック
-        const handleRedirectResult = async () => {
+        let unsubscribe: (() => void) | undefined;
+        let mounted = true;
+
+        const initializeAuth = async () => {
             try {
-                await authService.handleRedirectResult();
+                // まずリダイレクト結果をチェック（ページロード時に1回のみ）
+                if (import.meta.env.DEV) {
+                    console.log("Checking redirect result...");
+                }
+
+                try {
+                    const redirectUser = await authService.handleRedirectResult();
+                    if (redirectUser && mounted) {
+                        if (import.meta.env.DEV) {
+                            console.log("Redirect authentication successful:", redirectUser.email);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Redirect result error:", error);
+                    // エラーがあってもアプリは継続
+                }
+
+                // 認証状態の変更を監視
+                if (mounted) {
+                    unsubscribe = authService.onAuthStateChanged((user) => {
+                        if (import.meta.env.DEV) {
+                            console.log("Auth state changed:", user?.email || "No user");
+                        }
+                        if (mounted) {
+                            setUser(user);
+                            setLoading(false);
+                        }
+                    });
+                }
             } catch (error) {
-                console.error('Redirect result error:', error);
+                console.error("Auth initialization error:", error);
+                if (mounted) {
+                    setLoading(false);
+                }
             }
         };
 
-        // 認証状態の変更を監視
-        const unsubscribe = authService.onAuthStateChanged((user) => {
-            setUser(user);
-            setLoading(false);
-        });
+        initializeAuth();
 
-        // リダイレクト結果を処理
-        handleRedirectResult();
-
-        return () => unsubscribe();
-    }, []);
+        return () => {
+            mounted = false;
+            if (unsubscribe) {
+                unsubscribe();
+            }
+        };
+    }, []); // 空の依存配列で初回のみ実行
 
     const signInWithGoogle = async () => {
         try {
             setLoading(true);
             await authService.signInWithGoogle();
         } catch (error) {
-            console.error('Sign in error:', error);
+            console.error("Sign in error:", error);
             throw error;
         } finally {
             setLoading(false);
@@ -71,7 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setLoading(true);
             await authService.signOut();
         } catch (error) {
-            console.error('Sign out error:', error);
+            console.error("Sign out error:", error);
             throw error;
         } finally {
             setLoading(false);
@@ -106,9 +137,5 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         getUserUID,
     };
 
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    );
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
