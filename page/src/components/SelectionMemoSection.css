@@ -174,23 +174,26 @@
 }
 
 .selection-memo-left {
-    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
+    align-items: flex-start;
+    flex-shrink: 0;
 }
 
 .selection-memo-right {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 }
 
 .selection-memo-right label {
     font-size: 0.9rem;
     font-weight: 600;
     color: #666;
+    width: fit-content;
+    margin: 0;
 }
 
 [data-theme="dark"] .selection-memo-right label {
@@ -201,7 +204,7 @@
 .opponent-select-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     flex: 1;
     min-width: 0; /* flexboxでの縮小を許可 */
 }
@@ -210,6 +213,8 @@
     font-size: 0.9rem;
     font-weight: 600;
     color: #666;
+    width: fit-content;
+    margin: 0;
 }
 
 [data-theme="dark"] .opponent-select-wrapper label {
@@ -245,13 +250,16 @@
 .pokemon-selects-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
+    width: fit-content;
 }
 
 .pokemon-selects-wrapper label {
     font-size: 0.9rem;
     font-weight: 600;
     color: #666;
+    width: fit-content;
+    margin: 0;
 }
 
 [data-theme="dark"] .pokemon-selects-wrapper label {
